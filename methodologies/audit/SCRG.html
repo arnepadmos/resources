@@ -1,0 +1,841 @@
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=windows-1252">
+<title>Source Code Review Guidelines</title>
+<!-- Changed by: Adam Shostack, 24-Jul-1998 -->
+</head>
+<body>
+<center>
+<h2>Security Code Review Guidelines </h2>
+<h3><a href="https://adam.shostack.org/index.html">Adam Shostack</a></h3>
+First published online August, 1996.<br>
+<pre>$Id: review.html,v 1.17 2006/07/19 04:19:53 adam Exp $</pre>
+</center>
+
+
+<i>Note that as of May, 2000, this document is not getting a lot of
+      attention as to the latest tricks to avoid.  Much of it is still 
+      valid, but I suggest that you look elsewhere for an ultamately
+      up-to-date list.</i>
+
+<h3>Executive Summary</h3>
+		Before programs may be placed in the firewall system,
+the source code is reviewed for deficiencies in the areas of security,
+reliability and operations.  This document is dual purposed; first it
+is a guideline and checklist for security groups performing the code
+review; second, it is an attempt to provide development teams with
+information about what we look for in a review.<p> 
+
+	This is an early draft of the guidelines; it is being
+distributed in the hopes of providing a more transparent and
+predictable code review process.  We do not mean to imply that the
+things listed here are the only issues we will raise in a review.  We
+will attempt to keep this document up to date, so that over time, it
+becomes a more useful guide.</p><p> 
+
+
+</p><ol type="I"> 
+<h4>Table of Contents</h4>
+
+	<ol type="I">
+	<li>	<a href="#overview">Overview</a>
+	</li><li>	<a href="#documentation">Documentation</a>
+	</li><li>	<a href="#logging">Logging</a>
+	</li><li>	<a href="#filesystem issues">Filesystem issues</a>
+	</li><li>	<a href="#code-security">Code (Security)</a>
+	</li><li>	<a href="#code-reliability">Code (Reliability)</a>
+	</li><li>	<a href="#testing">Code Handover</a>
+	</li><li>	<a href="#miscellaneous">Miscellaneous</a>
+	</li><li>	<a href="#references">References</a>
+      </li></ol>
+
+	  <h4>Appendixes</h4>
+      <ol type="A">
+	<li><a href="#appendix-a">Language specific notes</a> 
+	</li><li><a href="#appendix-b">Application specific notes</a>
+	</li><li><a href="#changelog">Change Log</a>
+	</li><li><a href="#open">Calling open()</a>
+      </li></ol>
+
+<h4><li><a name="overview">Overview</a></li></h4>
+
+	This document describes the code review portion of getting a
+machine approved for connectivity outside of Acme Widgets.  The full
+process is described in (). <p>
+
+	When networking computers that can access information of
+financial or personal value that Acme Widgets has entrusted to a computer
+system, it is essential that we consider  information security.  When
+network connections pass through networks outside of Acme Widgets's
+control, we  are exposed to attacks from a variety of sources.  Those
+sources are known to include vandals ("hackers") who will make changes
+to information as a means of gaining prestige in the underground
+community, or as a matter of revenge or disruption, and amateur
+thieves, who will attempt to steal.  There may also be attacks by
+professional criminals or criminal groups who have access to
+substantial resources of both time and money, and can  perform an
+in-depth attack.  Acme Widgets is a large, high visibility target...</p><p>
+
+	As such, the firewall architecture group is tasked with
+providing a state of the art Internet firewall that will protect us
+from all these threats, and simultaneously help Acme Widgets provide
+service to our customers over the Internet.  We are interested in
+making it possible to deploy new applications that work over the
+internet, however, we must make sure that those applications are
+safe. </p><p>
+
+	This means that we need to resist a variety of attacks, and we
+need to do so <em>better</em> than in our phone or mail businesses.
+Why better?  Because on the phone, there is a person in the loop.  In
+the mail room, there is a person in the loop.  Online, it may be
+possible to scale an attack from annoying to disastrous, or from a
+small scam to a huge theft, because the entire attack might be
+automated. </p><p>
+
+	So it is with a healthy paranoia that we approach screening
+new components to the firewall.  We will examine the authentication
+and authorization methods that you use.  We will look for
+confidentiality and integrity controls.  We will look at
+administrative issues such as the documentation that the firewall
+support group needs, and how the program logs.</p><p>
+
+	This document, in addition to making the process transparent,
+is intended to speed the code review process, by letting you know what
+we'll be looking for, so you can have it ready when we do the review.
+It also explains some of the coding practices and common mistakes that
+we will insist be changed, so you can come to us with code thats
+closer to being installable. </p><p>
+
+	This is a requirements document.  In some places things will
+	be marked <em>'optional'</em>, or <em>'preferred.'</em> This
+	refers to a judgment call on the part of the Firewall
+	Architecture group, with input from corporate security, the
+	group whose code is being reviewed, and other participants in
+	the code review process.  The word optional may be construed
+	to mean that we will not require a change, although we may
+	strongly recommend it.  Other things will be marked
+	<em>'should,'</em> and those things are open to discussion, if
+	they are documented design decisions.  In other words, the
+	documentation must explain the choice at the start of the code
+	review.  Otherwise, we will require that the code be changed
+	to confirm with accepted security practices.</p><p>
+
+	The code review participants should remain constant from
+	review to review.  Participation by representatives from many
+	groups is required for a successful code review.  Those groups
+	include, but are not limited to, (Firewall Operations),
+	(Firewall Architecture) and Corporate Security.  The code must
+	be presented by a developer or group member who is qualified
+	and able to answer technical questions about the code and
+	design.  There must be a scribe and a coordinator appointed.
+	At the end of a review, all present must agree on an appraisal
+	of the code.  In the event of irreconcilable disagreements,
+	the least positive appraisal that everyone can agree to will
+	be the appraisal.  At reviews beyond the first, copies of the
+	diffs and the minutes of all previous meetings should be
+	available, along with a full copy of the current code.
+
+
+
+</p><h4><li><a name="documentation">Documentation</a><p></p></li></h4>
+<ol type="A">
+
+	The code must be accompanied by documentation.  The
+	documentation allows the review team to do a proper review,
+	and provides the support people with information that they
+	will need to run the code in the firewall environment.
+	Templates for the architectural overview, code overview, and
+	functional summaries will be made available.<p>
+
+</p><h5><li>Architectural Overview</li></h5> 
+
+      The review team will start with the architectural overview.
+      This overview will include a diagram of the system being
+      implemented, and the place of the code under review in the
+      system.  The diagram should show the client, the proxy and
+      server, all in relation to the Acme Widgets Firewall system.
+      Data flow from (Corporate Network) to the server should be
+      documented, as should how the client might relate to a firewall
+      at the remote site.  The overview should also contain a textual
+      description of the system, including a functional overview.  The
+      functional overview must include information about what threats
+      the code is expected to deal with, and how it will deal with
+      them. The use of cryptography for confidentiality, integrity,
+      etc should be outlined here. <p>
+
+</p><h5><li>Code Overview</li></h5>
+
+      Code reviews can be long and tedious.  Having to figure out how
+      the code is designed, what modules will be compiled in, and
+      other such information, obvious to the developer, will slow the
+      process of code review while we wait for the overview
+      information, and thus, deployment will be delayed. <p>
+
+</p><h5><li>Comments in code</li></h5>
+	We expect the code to have a reasonable number of comments.
+As a guide, each file should have a comment at the start, explaining
+what the code does, possibly a comment at the start of each function,
+and comments as needed to explain complex or obfuscated code.
+(Incidentally, a compilation of the per module header files might make
+a good basis for an overview document, although it will not be a
+complete overview.) <p>
+
+</p><h5><li>Functional summary</li></h5>
+	There must be a functional summary for the firewall support
+group.  This documentation is expected at the time of review, and will
+be evaluated as part of the review. <p>
+</p><ol type="1">
+	<em></em><li><em>Installation Requirements &amp; Environment</em><br>
+	The install procedure must be documented.  Can we copy a
+binary and a configuration file?  Do we need to run any scripts to set
+up directory hierarchies?  What will the permissions and ownership be
+on the installed files? <p>
+
+	<em></em></p></li><li><em>How to invoke.</em><br>
+	Does it run from the command line?  Inetd?  Cron?
+Rc2.d/S99Acme?  Are there arguments that the program expects?
+Does it expect environment variables to be set?  (We'd prefer they be
+moved to a configuration file.  We might mandate some options be moved
+to a configuration file for reliability reasons.)<p>
+
+	<em></em></p></li><li><em>Signals</em><br>
+	Does the program react to any signals other than SIGKILL and
+SIGTERM?  If it does, it should use SIGUSR1 to activate  debugging,
+and SIGUSR2 to turn it off.  In any event, the programs signal
+handling must be documented. <p>
+
+	<em></em></p></li><li><em>Options &amp; Configuration Files </em><br>
+	A complete description of all command line options is
+required.  A complete description of the configuration files is
+required. <p>
+</p></li></ol>
+</ol>
+<h4><li><a name="logging">Logging</a></li></h4>
+
+	All programs in the firewall must call syslog to report a
+variety of things.  Syslog is our standard way of getting log
+information from the firewall to the analysis machines.  Information
+to be logged includes, but is not limited to: Invocation, normal use
+(including which machines and what is being done), problems, and the
+program's termination, normal or abnormal.  Logging should be
+configurable via a signal.  We strongly suggest use of SIGUSR1 to turn
+on debugging, and SIGUSR2 to turn it off. <p>
+
+	Programs must be careful to avoid logging passwords,
+	cryptographic keys, and other sensitive data.  In addition, be
+	careful about the amount of user supplied data that syslog
+	gets.</p><p>
+
+	Passing debugging information to syslog is optional.</p><p> 
+
+	Log facility and levels to be used will be provided by (Firewall Architecture) on
+	request.  In general, use LOG_INFO for information, LOG_DEBUG
+	for debug, and LOG_ALERT, LOG_CRIT, and LOG_ERR when those are
+	reasonably called for.
+
+</p><h4><li><a name="files">Files</a></li></h4>
+<ol type="A">
+	<h5><li>Configuration files</li></h5><br>
+	The program should read as much as is feasible from
+configuration files; not have things such as host names hard-coded
+into it.  (Hostnames, incidentally, should always be fully qualified.)
+The file should be in a standard location (/usr/local/etc/acme/program
+is strongly suggested), should have its ownership and permission
+checked before reading, and should not be writable by the uid the
+program is running under.  The config file should also specify the log
+facility.  The config file should be treated like other incoming
+data, on the chance that its been corrupted.<p>
+
+	</p><h5><li>Core files</li></h5><br>
+	Code on the firewall should attempt not to dump core if it
+might have sensitive data in memory that could be retrieved.  Cores
+might be made retrievable by an information (ftp, gopher, or web)
+server running on the machine.  If the machine is a proxy server, we
+can discuss the disposition of core files. <p>
+
+	</p><h5><li>Chroot()</li></h5><br> The chroot() call irreversibly
+	changes a programs view of the filesystem, creating a new
+	'root,' usually within a tightly controlled 'jail' filesystem
+	or partition.  This denies many useful tools to the attacker
+	who has broken in, and is attempting to gain privledges.  Code
+	that will need filesystem access should be able to run under a
+	chrooted environment.  We will be invoking it from chrootuid.
+	(Note that if your code runs with root privleges, or if there
+	are buggy setuid tools available in the chroot area, a
+	competent attacker can break out.<p>
+
+
+	</p><h5><li>NFS</li></h5><br>
+	Just say No File Security.<br>
+
+	NFS uses 'client side' security, and has a host of security
+problems associated with the portmapper, the way file handles are
+generated, and thus should be avoided.
+
+	<h5><li>Use Of setuid/setgid Permissions</li></h5><br>
+	Giving code that runs on the firewall any privileges is
+strongly discouraged, and use of privilege bits will cause much more
+extensive scrutiny of the privileged code.  If you need privileges,
+call seteuid() and setruid().  Also, consider putting all the
+privilege in a single small program that does its one thing without
+taking any arguments or user input.  (Example, a program that binds to
+port 23 could be called port23, and execv(/usr/sbin/ftpd) after
+setting its uid to nobody.) <p>
+
+</p></ol>
+<h4><li>	<a name="code-security">Code (Security Issues)</a></li></h4>
+<ol type="A">
+	<h5><li>Libraries</li></h5><br>
+	There are a number of security related libraries that can
+	provide some of the functions described below.  () is in the
+	process of reviewing these libraries, and may be able to make
+	a recommendation.  <p>
+
+	</p><h5><li>Command Line</li></h5><br>
+	The command line arguments of a program should be checked
+	carefully, especially if the code is running with, or might be
+	invoked with, privileges. <p>
+
+	</p><h5><li>Data Checking</li></h5><br>
+	Data coming in to Acme Widgets should be checked very carefully
+	for appropriateness.  This check should be to see if the data
+	is what is expected (length, characters). Making a list of bad
+	characters is not the way to go; the lists are rarely
+	complete.  A secure program should know what it expects, and
+	reject other input. (For example, if you are looking for a
+	host name, don't check to see if it contains a semi-colon or a
+	newline, check to see if it contains anything other than a
+	[A-Za-z0-9-] followed by a dot (period), followed by a
+	hostname [A-Za-z0-9-].)  <a href="#appendix-b-mail">See
+	Appendix B</a> for some comments on email address parsing.<p>
+
+	It is not appropriate to assume that a connection is coming
+	from the client that you expect, unless you take strong
+	measures.  It very difficult to ensure that you are not
+	talking to a bad guy.  Doing so requires that a connection use
+	strong authentication up front and be encrypted and
+	authenticated throughout its lifetime.</p><p>
+
+	Even when this is done, there is a chance that a user might
+find it worth attacking through an authenticated connection.  Consider 
+verify the sanity of inbound data.</p><p>
+
+	</p><h5><li>Confidentiality</li></h5><br>
+	Data leaving the firewall should be checked for confidential
+	Acme Widgets information, and most likely encrypted for
+	confidentiality.<p>
+
+	</p><h5><li>System Calls</li></h5><br>
+    All system or library calls must have their return values checked, and
+    errors handled.  Not checking the results of a system or library
+    call is unacceptable.  The sole
+    exception to this is that class of calls which are designed to
+    either work or exit, and thus can not return failure.<p>
+
+	Certain library calls have historically, been found to be
+	associated with security problems, because they do no
+	checking, and user input is often passed to them.  Use of
+	these calls is strongly discouraged.  Those calls include but
+	are not limited to,
+</p><dl>
+<dt>system</dt><dd> If there's user input in the arguments, the user might
+be able to run a command. 
+
+</dd><dt>exec, popen </dt><dt> Similar to system.  Use execl or execv, but be
+careful not to pass user data to them without strong sanity checking.
+</dt><dt>setuid and setgid </dt><dd>Programs shouldn't be able to use these
+calls, because they shouldn't have any privileges.
+
+</dd><dt>strcpy, strcat, sprintf
+</dt><dd>don't check the length of the strings they're working with.  Use
+strncpy, strncat.
+
+</dd><dt>getenv </dt><dd>Can produce buffer overflows.  Also, watch for a
+variable set two (or more!) times.
+
+</dd><dt>gets, scanf</dt><dd>Improper bounds checking.  Use read, fgets
+
+</dd><dt>gethostbyname, gethostbyaddr
+</dt><dd> These, and other calls that
+get data from the DNS, may return malicious data under the control of
+a bad guy.  Getting a DNS server is pretty easy, as is having it
+return 64k of data for your hostname, or returning a Acme Widgets address
+instead of the real one.  Any time you're getting data from the DNS,
+consider doing whats referred to as a double-reverse lookup, and
+again, don't trust the data returned will be in a safe format, or
+correct.  Code that correctly checks the information returned by the
+dns can be found in the logdaemon package. 
+</dd><dt>syslog
+
+</dt><dd>If syslog is passed information derived from user input, be
+careful to not overflow syslog's buffers.  The maximum buffer size to
+pass is 1024 bytes.<p>
+</p></dd><dt>realloc
+</dt><dd>Realloc should not be used in crypto applications.  If memory
+	contiguous to that already allocated is not available, realloc 
+	will make a copy of the memory without zeroing the old bits.
+	If this old memory contains keys, then you lose the pointer to 
+	the memory without destroying the information.  This is
+	generally considered a mistake.
+
+</dd><dt>open
+</dt><dd>The filesystem can change in ways you don't expect.  There is
+	sample code in an appendix for how to call open and be sure
+	you avoid tmp races, linking games, and other things.
+
+</dd></dl>
+
+<li><h5>Atomicity</h5><br>
+	Many security holes are related to programmer expectations
+that the flow of their program is uninterrupted. File access should be
+atomic.  Temporary files, if they exist, should be created with
+tmpfile(). <p>
+</p></li></ol>
+
+<h4><li><a name="code-reliability">Code (Reliability Issues)</a></li></h4>
+<ol type="A">
+
+<li>	System calls should have their return status checked.
+</li><li>	Signals should be caught and handled.
+</li><li>	Multithreaded code should use mutex() calls on globals.
+</li><li>	C++ classes should have a constructor, destructor, (??)
+</li><li>	Configuration information should be in a configuration file,
+not hardcoded into the program.  See the section on configuration files.
+
+</li><li>	The year 2000 is real soon now.  Leap years happen every four
+years.  Daylight savings may move the clock back an hour annually. 
+</li><li>	Functions should perform bounds checking.
+</li><li>	umask should be set to a restrictive value.
+</li><li>    UIDs should never be -1, which can sometimes happen if you
+	have insufficient type strength, or otherwise try putting UID
+	65535 in a short.
+
+</li></ol>
+<a name="testing">
+<h4><li>Testing</li></h4></a>
+<ol type="A">
+	During the process of writing code, it should be tested for
+functionality and security.  These tests should be made available to
+the review team, preferably in the form of a script.  Tests should
+look for things such as buffer overflows, proper dataflows, resistance
+to unusual input (control characters, for example), off-by-one loop
+errors, possible unterminated loop situations, etc. <p>
+
+
+</p><h5><li>Compiler Checking</li></h5> 
+
+The code must be run through available tools for code quality checking, such as lint or perl -w.  See the <a href="#appendix-a">language notes.</a>
+
+<h5><li>Testing Tools</li></h5>
+	We will work with the code's authors to produce a set of stress tests.
+
+
+</ol>
+<h4><li>Miscellaneous</li></h4>
+<ol type="A">
+<h5><li>Code size</li></h5>
+	The programs running in the firewall should be kept to a
+	minimum of size and functionality, because all code, even when
+	we're done reviewing it, has bugs.  The more code there is,
+	the more bugs there will be.  The more bugs there are, the
+	more security related bugs there will be.  Thus, we want the
+	smallest code that is reasonable for the job.  The code should
+	also be kept simple and straightforward.
+
+<h5><li>Revision Control</li></h5>
+	The code must be under revision control.  RCS or similar log
+	messages and version numbers must be in the code and available
+	from <em>strings(1)</em>.  Revision based differential
+	information must be available.
+
+<h5><li>Code Formatting</li></h5>
+
+      All code will be run through a standard formatter before review,
+      and printed with file names, line and page numbers on each page.
+      Lines will be formatted to wrap at a reasonable length.  We
+      suggest the use of the unix command "fmt FILE | vgrind | lpr" or
+      "pr -n | mpage -2 -f | lp".  The presenter of the code is
+      responsible for providing the coordinator with the code in paper
+      and electronic form at least one full day before a review.
+
+<h5><li>Code ownership</li></h5>
+      (Firewall Architecture) and (Firewall Operations) will take ownership of the code once it is frozen.
+      It will be kept in an archive in a buildable form.  The binaries
+      from this code will be installed as per the install
+      instructions.  Cryptographic checksums of the code should be
+      recorded with code version numbers.
+
+
+<h5><li>Strong Authentication</li></h5>
+      Strong authentication should be used on all connections.
+      Contact (Firewall Architecture) for a list of supported authentication methods.  All
+      authentication should be managed by the TIS authmgr.<p>
+
+</p></ol>
+
+<li><h4>References</h4>
+<ol type="A">
+<h5><li>Web Security</li></h5>
+      <ul>
+        <li> <a href="http://www.genome.wi.mit.edu/WWW/faqs/www-security-faq.html">WWW
+        Security FAQ.</a>
+
+	</li><li><a href="http://hoohoo.ncsa.uiuc.edu/cgi/security.html">Writing
+	Secure CGI</a>, a primer.
+      </li></ul>
+
+<h5><li>Code Review</li></h5>
+
+	Nuclear Power Plant Code Review <a href="http://hissa.ncsl.nist.gov/publications/nistir4909/">Guidelines
+	</a><br>
+      AusCert's writing secure UNIX code <a href="ftp://ftp.auscert.org.au/pub/auscert/papers/secure_programming_checklist">Guidelines</a><br>
+	The <a href="http://www.ics.hawaii.edu/~siro/">Software
+Inspections and Review Organization</a> has some very useful things.<p>
+        Its worth noting that even small bugs should be fixed.  Read
+<a href="http://www.esrin.esa.it/htdocs/tidc/Press/Press96/ariane5rep.html">this</a>
+to see an example of a small bug that was identified and blew up in
+the designers faces.  More recently, the Linux Security Audit Project
+      has a <href="http: www.lsap.org="" faq.txt"="">FAQ, and Kragen
+has a list of things to consider at <a href="http://www.pobox.com/~kragen/security-holes.html">Kragen</a>.
+
+</href="http:></p><h5><li>Logdaemon</li></h5> a properly paranoid set of UNIX daemons.
+	ftp://ftp.win.tue.nl/pub/security/logdaemon.tar.gz
+
+<h5><li>Code testing.</li></h5>  This <a href="ftp://grilled.cs.wisc.edu/technical_papers/fuzz-revisited.ps.Z">paper</a> details what happens when programs
+were fed arbitrary data.
+
+<h5><li>Cops</li></h5><a href="ftp://coast.cs.purdue.edu/pub/tools/unix/cops/1.04/">Cops</a>
+includes a man page entitled <a href="https://adam.shostack.org/setuid.7.html">setuid(7)</a>
+with much useful advice.
+
+<h5><li>Coding Standards</li></h5> 
+
+The <a href="ftp://prep.ai.mit.edu//pub/gnu/standards/standards.text">GNU
+Coding standards</a> are a set of coding standards that produce some
+of the consistently best code that is freely available.<p>
+
+FreeBSD has a page of <a href="http://www.freebsd.org/security/programmers.html">Security Do's and don'ts for programmers</a>.</p><p>
+
+
+
+
+</p><h5><li>Misc. References</li></h5>
+
+        <a href="http://www.cl.cam.ac.uk/users/rja14/">Ross
+Anderson</a>'s papers on Why Cryptosystems Fail, and Robustness
+Principles for Public Key Cryptosystems are well worth reading.<p>
+
+        The ACM Forum on Risks to the Public (news:comp.risks) is full
+of great background.</p><p>
+
+	Matt Bishop's <a href="http://olympus.cs.ucdavis.edu/~bishop/secprog.html">Writing
+Secure SetUID Programs</a> page.  Several well done papers that are
+well worth reading.</p><p>
+
+        Rain Forest Puppy wrote an article in <a href="http://www.insecure.org/news/P55-07.txt">Phrack
+	55-07</a> about common failures in perl coding.  If you're
+      writing in perl, its worth reading.</p><p>
+
+ Simon Burr has a web page explaining <a href="http://www.bpfh.net/simes/computing/chroot-break.html">how to
+break out of a chroot jail.</a>
+
+</p></ol>
+</li></ol>
+<h4>Acknowledgements</h4>
+
+      Simson Garfinkel &amp; Gene Spafford's Practical UNIX security, 2nd
+      edition contains useful notes on writing secure code.  The
+      section has been made available as an AUSCERT publication.
+
+      Marcus Watts offered excellent insights into parsing user data.
+      Mark O. Aldrich pointed me towards the SSECMM web site.  Bernd
+      Eckenfels, Ge' Weijers, Igor Chudov and others offered advice on
+      parsing email addresses.  Peter M Allan caught many large errors
+      in the details, most notably a suggestion to use execve.  He
+      also pointed out the setuid man page.
+      
+
+<h3>Appendices</h3>
+<ol>
+<h3><li><a name="appendix-a">Language Notes</a></li></h3>
+<ol type="A">
+<h5><li>C</li></h5>
+
+The code must <em>lint(1)</em> cleanly.  It must be compilable with
+-Wall or equivalent without warnings.  It should pass an extended
+memory checker, such as Purify or Electric Fence.  Flexlint should
+also be used for checking.
+
+Initial revision
+
+<h5><li>C++</li></h5>
+
+As C.
+
+<h5><li>Perl</li></h5>
+
+The code must run cleanly under perl -Tw.  The T option directs perl
+    to use its taint checking mode, and -w is warnings.  Also, the
+    directive "use strict" causes perl to catch more problems in the
+    code.
+<p>
+
+Also, be aware of the null byte issue when passing things to system
+      calls: Perl allows nulls in strings, C does not, which can lead
+      to interesting behavior.  See Phrack 55-07 for details.
+
+
+</p></ol>
+
+<a name="appendix-b"><h3><li>Application Notes</li></h3></a>
+<ol type="A">
+<h5><li>cgi-bin</li></h5>
+      Lincoln Stein form library
+<h5><li><a name="appendix-b-mail">Mail addressing</a></li></h5>
+
+      There are a wide variety of legal email address formats.  We
+      strongly advise that a paranoid, minimalist approach in choosing
+      what to accept.  This will cut off some subset of customers, but
+      most people have available to them Internet style
+      (user@host.net) addressing.  The issue of how to handle unusual
+      email address is a design decision.  If an unusual address is
+      passed, it may have repercussions later when some other bit of
+      code expects internet addressing.  You might consider some form
+      of verification for bizarre addresses.<p>
+
+Legitimate address formats include:
+</p><pre>     user_name@company.com
+     alex+@pitt.edu
+     mi%aldan.UUCP@algebra.com
+     user%host.domain@anon.penet.fi
+     host1!host2!user
+     /G=JABYML/S=MASONS/O=CUSTOMER/ADMD=FOOBAR/C=KZ/@gateway.sprint.com
+     "JE Jones"@foo.x.400.net
+</pre>
+
+<h5><li>nsapi</li></h5>
+<h5><li>Proxy</li></h5>
+
+If you choose to write a new proxy, we recommend using a process model if
+the typical session will last more than a few seconds.  The speed gain
+from threading is outweighed by the increased complexity, and that gain
+is amortized over the life of a process.
+
+<h5><li>DCE</li></h5> 
+We like DCE's strong authentication.  DCE RPCs without authentication
+and authorization are not useful.
+
+<h5><li>Cryptography</li></h5>
+<ul type="bullet">
+
+<li> You must use standard algorithms.  No algorithm not subjected
+to extensive public peer review will be accepted.
+</li><li> You should use standard protocols wherever possible.  PKCS message
+formats are good.
+</li><li>  Use standard implementations, don't recode algorithms or protocols.
+</li><li>  Understand the difference between authentication, privacy, and non-repudiation.
+</li></ul>
+</ol>
+</ol>
+<a name="changelog"><h3><li>Change Log</li></h3></a>
+<pre>$Log: review.html,v $
+Revision 1.17  2006/07/19 04:19:53  adam
+added note about Olaf Kirch's "Cryogenic Sleep" post to bugtraq.  Via
+ Ilja van Sprundel.
+
+Revision 1.16  2004/11/13 17:17:21  adam
+added first published line.
+
+Revision 1.15  2001/11/06 20:47:32  adam
+updated for kragen
+
+Revision 1.14  2000/07/03 16:45:05  adam
+added pointer to chroot page.
+
+Revision 1.13  2000/05/02 18:30:55  adam
+added historical note.
+
+Revision 1.12  2000/05/02 18:27:52  adam
+added per zab
+
+Revision 1.11  1999/11/09 14:55:58  adam
+added pointers to RFP's 55-07 article
+
+Revision 1.10  1999/06/01 19:25:49  adam
+added open comments from Peter
+
+Revision 1.16  1999/06/01 19:14:23  adam
+added realloc comments (Thanks to pguttmann)
+
+Revision 1.15  1998/11/24 21:26:42  adam
+fixed system call/library call confusion pointed out by alert reader
+Olof Johansson
+
+Revision 1.14  1998/10/29 23:28:44  adam
+added that system calls must have their return status checked
+
+Revision 1.13  1998/09/02 22:44:03  adam
+David Landgren (david@landgren.net) provided improvements to Perl
+section about -T and strict.
+
+Revision 1.12  1998/07/24 12:58:39  adam
+added freebsd dos &amp; don'ts
+
+Revision 1.11  1998/04/11 19:03:36  adam
+clarified chroot, added references to Matt Bishop's papers.
+
+Revision 1.10  1997/08/29 16:06:20  adam
+fixed link
+
+Revision 1.9  1996/10/05 05:19:31  adam
+VC System change
+
+Revision 1.8  1996/09/04 17:09:26  adam
+Added changelog section
+
+revision 1.7   1996/09/04 17:06:14 adam
+Added comments about possible syslog buffer overflows.
+Added a few lines about the unavailability of NFS
+Changed execve to exec
+moved email example to appendix, used hostnames instead.
+Moved most of compiler checking to appendix, left platitude about using available
+e tools
+Added requirement for paper, electronic copies from presenter a day
+  before a review, included command line to print with.
+Pointers to SIRO, Cops' setuid man page
+Acknowledgements
+Filled out appendixes on proxies, dce, and cryptography
+
+revision 1.6  1996/08/29 17:51:07    adam
+mail addressing expanded
+acks
+spell checking
+
+revision 1.5  1996/08/15 21:03:24     adam
+rearranged acknowledgements, fixed font sizing
+
+revision 1.4  1996/08/15 20:55:21     adam
+added appendixes
+Fixed html for references
+Added some of JB's comments
+
+revision 1.3  1996/08/12 20:19:59     adam
+Made changes as per JB's large suggestions.
+
+revision 1.2  1996/08/07 19:08:30     adam
+Finished htmlizing docs
+
+revision 1.1   1996/08/07 18:44:48    adam
+Initial revision
+
+</pre>
+
+<a name="open"><h3><li>Calling Open</li></h3></a>
+
+It turns out that calling open() can be tricky.  This code was
+    provided by Peter Guttmann to handle cases where the filesystem is 
+    changing underneath you.
+
+<p>
+<a href="http://www.security-express.com/archives/bugtraq/2000-01/0012.html">18
+ July 2006: Note that this doesn't work quite as wella s you'd like.  
+See http://www.security-express.com/archives/bugtraq/2000-01/0012.html 
+for details."</a>
+
+</p><pre>
+
+    /* Under Unix we try to defend against writing through links, but this is
+       somewhat difficult since the there's no atomic way to do this, and
+       without resorting to low-level I/O it can't be done at all.  What we
+       do is lstat() the file, open it as appropriate, and if it's an
+       existing file ftstat() it and compare various important fields to make
+       sure the file wasn't changed between the lstat() and the open().  If
+       everything is OK, we then use the lstat() information to make sure it
+       isn't a symlink (or at least that it's a normal file) and that the
+       link count is 1.  These checks also catch other weird things like
+       STREAMS stuff fattach()'d over files.
+
+       If these checks pass and the file already exists we truncate it to
+       mimic the effect of an open with create.  Finally, we use fdopen() to
+       convert the file handle for stdio use */
+
+    struct stat lstatInfo;
+    char *mode = "rb+";
+    int fd;
+
+    /* lstat() the file.  If it doesn't exist, create it with O_EXCL.  If
+       it does exist, open it for read/write and perform the fstat()
+       check */
+    if( lstat( fileName, &amp;lstatInfo ) == -1 )
+        {
+        /* If the lstat() failed for reasons other than the file not
+           existing, return a file open error */
+        if( errno != ENOENT )
+            return( -1 );
+
+        /* The file doesn't exist, create it with O_EXCL to make sure an
+           attacker can't slip in a file between the lstat() and open() */
+        if( ( fd = open( fileName, O_CREAT | O_EXCL | O_RDWR, 0600 ) ) == -1 )
+            return( -1 );
+        mode = "wb";
+        }
+    else
+        {
+        struct stat fstatInfo;
+
+        /* Open an existing file */
+        if( ( fd = open( fileName, O_RDWR ) ) == -1 )
+            return( -1 );
+
+        /* fstat() the opened file and check that the file mode bits and
+           inode and device match */
+        if( fstat( fd, &amp;fstatInfo ) == -1 || \
+            lstatInfo.st_mode != fstatInfo.st_mode || \
+            lstatInfo.st_ino != fstatInfo.st_ino || \
+            lstatInfo.st_dev != fstatInfo.st_dev )
+            {
+            close( fd );
+            return( -1 );
+            }
+
+        /* If the above check was passed, we know that the lstat() and
+           fstat() were done to the same file.  Now check that there's
+           only one link, and that it's a normal file (this isn't
+           strictly necessary because the fstat() vs lstat() st_mode
+           check would also find this) */
+        if( fstatInfo.st_nlink &gt; 1 || !S_ISREG( lstatInfo.st_mode ) )
+            {
+            close( fd );
+            return( -1 );
+            }
+
+        /* On systems which don't support ftruncate() the best we can do
+           is to close the file and reopen it in create mode which
+           unfortunately leads to a race condition, however "systems
+           which don't support ftruncate()" is pretty much SCO only, and
+           if you're using that you deserve what you get ("Little
+           sympathy has been extended") */
+#ifdef NO_FTRUNCATE
+        close( fd );
+        if( ( fd = open( fileName, O_CREAT | O_TRUNC | O_RDWR ) ) == -1 )
+            return( -1 );
+        mode = "wb";
+#else
+        ftruncate( fd, 0 );
+#enndif /* NO_FTRUNCATE */
+        }
+
+    /* Open a stdio file over the low-level one */
+    stream-&gt;filePtr = fdopen( fd, mode );
+    if( stream-&gt;filePtr == NULL )
+        {
+        close( fd );
+        unlink( fileName );
+        return( -1 );  /* Internal error, should never happen */
+        }
+    }
+</pre>
+
+
+
+
+</body></html>

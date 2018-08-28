@@ -1,0 +1,138 @@
+Cryptographic Right Answers, Tomas Ptacek
+
+**Encrypting data** (*Was: AES-CTR with HMAC*): Use, in order of preference: (1) The Nacl/libsodium default, (2) Chacha20-Poly1305, or (3) AES-GCM. 
+
+*You care about this if: you're hiding information from users or the network.*
+
+All three options get you "AEAD", which is the only way you want to encrypt in 2015. Options (2) and (3) are morally the same thing: a stream cipher with a polynomial ("thermonuclear CRC") MAC. Option (2) gets there with a native stream cipher and a MAC optimized for general purpose CPUs; Poly1305 is also easier than GCM for library designers to implement safely. Option (3)'s AES-GCM is the industry standard; it's fast and usually hardware accelerated on modern processors, but has implementation safety pitfalls on platforms that aren't accelerated.
+
+*Avoid: AES-CBC, AES-CTR by itself, block ciphers with 64-bit blocks --- most especially Blowfish, which is inexplicably popular, OFB mode. Don't ever use RC4, which is comically broken.*
+
+**Symmetric key length** (*Was: Use 256 bit keys*): Go ahead and use 256 bit keys. 
+
+*You care about this if: you're using cryptography.*
+
+But rememeber: your AES key is far less likely to be broken than your public key pair, so the latter key size should be larger if you're going to obsess about this. 
+
+*Avoid: constructions with huge keys, cipher "cascades", key sizes under 128 bits.*
+
+**Symmetric signatures** (*Was: use HMAC*): Remains HMAC. 
+
+*You care about this if: you're securing an API, encrypting session cookies, or are encrypting user data but, against medical advice, not using an AEAD construction.*
+
+If you're authenticating but not encrypting, as with API requests, don't do anything complicated. There is a class of crypto implementation bugs that arises from how you feed data to your MAC, so, if you're designing a new system from scratch, Google "crypto canonicalization bugs". Also, use a secure compare function. 
+
+*Avoid: custom "keyed hash" constructions, HMAC-MD5, HMAC-SHA1, complex polynomial MACs, encrypted hashes, CRC.*
+
+**Hashing/HMAC algorithm** (*Was: use SHA256/HMAC-SHA256*): Remains SHA-2. 
+
+*You care about this if: you always care about this.*
+
+If you can get away with it: use SHA-512/256, which truncates its output and sidesteps length extension attacks. Meanwhile: it's less likely that you'll upgrade from SHA-2 to SHA-3 than it is that you'll upgrade from SHA-2 to something faster than SHA-3, and SHA-2 looks great right now, so get comfortable and cuddly with SHA-2.
+
+*Avoid: SHA-1, MD5, MD6.*
+
+**Random IDs** (*Was: Use 256-bit random numbers*): Remains: use 256-bit random numbers. 
+
+*You care about this if: you always care about this.*
+
+From /dev/urandom.
+
+*Avoid: userspace random number generators, havaged, prngd, egd, /dev/random.*
+
+**Password handling** (*Was: scrypt or PBKDF2*): In order of preference, use scrypt, bcrypt, and then if nothing else is available PBKDF2. 
+
+*You care about this if: you accept passwords from users or, anywhere in your system, have human-intelligible secret keys.*
+
+But don't obsess about which you use, or built elaborate password-hash-agility schemes to accomodate Password Hash Competition winners; they're all pretty good. The real weakness is in systems that don't use password hashes at all.
+
+*Avoid: naked SHA-2, SHA-1, MD5.*
+
+**Asymmetric encryption** (*Was: Use RSAES-OAEP with SHA256 and MGF1+SHA256 bzzrt pop ffssssssst exponent 65537*): Use Nacl.
+
+*You care about this if: you need to encrypt the same kind of message to many different people, some of them strangers, and they need to be able to accept the message asynchronously, like it was store-and-forward email, and then decrypt it offline. It's a pretty narrow use case.*
+
+Of all the cryptographic "right answers", this is the one you're least likely to get right on your own. Don't freelance public key encryption, and don't use a low-level crypto library like OpenSSL or BouncyCastle.
+
+Here are several reasons you should stop using RSA and switch to elliptic curve software:
+
+* Progress in attacking RSA --- really, all the classic multiplicative group primitives, including DH and DSA and presumably ElGamal --- is proceeding faster than progress against elliptic curve.
+* RSA (and DH) drag you towards "backwards compatibility" (ie: downgrade-attack compatibility) with insecure systems. Elliptic curve schemes generally don't need to be vigilant about accidentally accepting 768-bit parameters.
+* RSA begs implementors to encrypt directly with its public key primitive, which is usually not what you want to do: not only does accidentally designing with RSA encryption usually forfeit forward-secrecy, but it also exposes you to new classes of implementation bugs. Elliptic curve systems don't promote this particular foot-gun. 
+* The weight of correctness/safety in elliptic curve systems falls primarily on cryptographers, who must provide a set of curve parameters optimized for security at a particular performance level; once that happens, there aren't many knobs for implementors to turn that can subvert security. The opposite is true in RSA. Even if you use RSA-OAEP, there are additional parameters to supply and things you have to know to get right.
+
+If you have to use RSA, do use RSA-OAEP. But don't use RSA.
+
+*Avoid: RSA-PKCS1v15, RSA, ElGamal, I don't know, Merkle-Hellman knapsacks? Just avoid RSA.* 
+
+**Asymmetric signatures** (*Was: Use RSASSA-PSS with SHA256 then MGF1+SHA256 yabble babble*): Use Nacl, Ed25519, or RFC6979.
+
+*You care about this if: you're designing a new cryptocurrency. Or, a system to sign Ruby Gems or Vagrant images, or a DRM scheme, where the authenticity of a series of files arriving at random times needs to be checked offline against the same secret key. Or, you're designing an encrypted message transport.*
+
+The allegations from the previous answer are incorporated herein as if stated in full.
+
+In 10+ years of doing software security assessments I can count on none fingers the number of RSA-PSS users I was paid to look at. RSA-PSS is an academic recommendation. 
+
+The two dominating use cases within the last 10 years for asymmetric signatures are cryptocurrencies and forward-secret key agreement, as with ECDHE-TLS. The dominating algorithms for these use cases are all elliptic-curve based. Be wary of new systems that use RSA signatures.
+
+In the last few years there has been a major shift away from conventional DSA signatures and towards misuse-resistent "deterministic" signature schemes, of which EdDSA and RFC6979 are the best examples. You can think of these schemes as "user-proofed" responses to the Playstation 3 ECDSA flaw, in which reuse of a random number leaked secret keys. Use deterministic signatures in preference to any other signature scheme. 
+
+*Avoid: RSA-PKCS1v15, RSA, ECDSA, DSA; really, especially avoid conventional DSA and ECDSA.*
+
+**Diffie-Hellman** (*Was: Operate over the 2048-bit Group #14 with a generator of 2*): Probably still DH-2048, or Nacl.
+
+*You care about this if: you're designing an encrypted transport or messaging system that will be used someday by a stranger, and so static AES keys won't work.*
+
+This is the trickiest one. Here is roughly the set of considerations:
+
+* If you can just use Nacl, use Nacl. You don't even have to care what Nacl does.
+* If you can use a very trustworthy library, use Curve25519; it's the modern ECDH curve with the best software support and the most analysis. People really beat the crap out of Curve25519 when they tried to get it standardized for TLS. There are stronger curves, but none supported as well as Curve25519.
+* But don't implement Curve25519 yourself or port the C code for it.
+* If you can't use a very trustworthy library for ECDH but can for DH, use DH-2048 with a standard 2048 bit group, like Colin says, but only if you can hardcode the DH parameters.
+* But don't use conventional DH if you need to negotiate parameters or interoperate with other implementations.
+* If you have to do handshake negotiation or interoperate with older software, consider using NIST P-256, which has very widespread software support. Hardcoded-param DH-2048 is safer than NIST P-256, but NIST P-256 is safer than negotiated DH. *But only if you have very trustworthy library support*, because NIST P-256 has some pitfalls. P-256 is probably the safest of the NIST curves; don't go down to -224. Isn't crypto fun?
+* If your threat model is criminals, prefer DH-1024 to sketchy curve libraries. If your threat model is governments, prefer sketchy curve libraries to DH-1024. But come on, find a way to one of the previous recommendations.
+
+It sucks that DH (really, "key agreement") is such an important crypto building block, but it is. 
+
+*Avoid: conventional DH, SRP, J-PAKE, handshakes and negotiation, elaborate key negotiation schemes that only use block ciphers, srand(time()).*
+
+**Website security** (*Was: Use OpenSSL.*): Remains: OpenSSL, or BoringSSL if you can. Or just use AWS ELBs.
+
+*You care about this if: you have a website.*
+
+By "website security", Colin means "the library you use to make your web server speak HTTPS". Believe it or not, OpenSSL is still probably the right decision here, if you can't just delegate this to Amazon and use HTTPS elastic load balancers, which makes this their problem not yours. 
+
+*Avoid: offbeat TLS libraries like PolarSSL, GnuTLS, and MatrixSSL.*
+
+**Client-server application security** (*Was: ship RSA keys and do custom RSA protocol*) Use TLS.
+
+*You care about this if: the previous recommendations about public-key crypto were relevant to you.*
+
+What happens when you design your own custom RSA protocol is that 1-18 months afterwards, hopefully sooner but often later, you discover that you made a mistake and your protocol had virtually no security. That happened to Colin, but a better example is Salt Stack. Salt managed to deploy e=1 RSA.
+
+It seems a little crazy to recommend TLS given its recent history:
+
+* The Logjam DH negotiation attack
+* The FREAK export cipher attack
+* The POODLE CBC oracle attack
+* The RC4 fiasco
+* The CRIME compression attack
+* The Lucky13 CBC padding oracle timing attack
+* The BEAST CBC chained IV attack
+* Heartbleed
+* Renegotiation
+* Triple Handshakes
+* Compromised CAs
+
+Here's why you should still use TLS for your custom transport problem:
+
+* Many of these attacks only work against browsers, because they rely on the victim accepting and executing attacker-controlled Javascript in order to generate repeated known/chosen plaintexts. 
+* Most of these attacks can be mitigated by hardcoding TLS 1.2+, ECDHE and AES-GCM. That sounds tricky, and it is, but it's less tricky than designing your own transport protocol with ECDHE and AES-GCM! 
+* In a custom transport scenario, you don't need to depend on CAs: you can self-sign a certificate and ship it with your code, just like Colin suggests you do with RSA keys.
+
+*Avoid: designing your own encrypted transport, which is a genuinely hard engineering problem; using TLS but in a default configuration, like, with "curl"; using "curl", IPSEC.*
+
+**Online backups** (*Was: Use Tarsnap*): Remains Tarsnap.
+
+What can I say? This recommendation stood the test of time.

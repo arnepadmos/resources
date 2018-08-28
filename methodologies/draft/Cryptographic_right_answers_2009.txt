@@ -1,0 +1,85 @@
+Cryptographic Right Answers, Colin Percival
+
+Thanks to my background as FreeBSD Security Officer, as a cryptographic researcher, and as the author of the Tarsnap secure online backup system, I am frequently asked for advice on using cryptography as a component in secure systems. While some people argue that you should never use cryptographic primitives directly and that trying to teach people cryptography just makes them more likely to shoot themselves in their proverbial feet, I come from a proud academic background and am sufficiently optimistic about humankind that I think it's a good idea to spread some knowledge around. In light of this, I've put together a list of "Cryptographically Right Answers" -- which is to say, a list of recommendations for using cryptography which, if followed, will make sure you get things right in the vast majority of situations.
+
+
+Encrypting data: Use AES in CTR (Counter) mode, and append an HMAC.
+
+AES is about as standard as you can get, and has done a good job of resisting cryptologic attacks over the past decade. Using CTR mode avoids the weakness of ECB mode, the complex (and bug-prone) process of padding and unpadding of partial blocks (or ciphertext stealing), and vastly reduces the risk of side channel attacks thanks to the fact that the data being input to AES is not sensitive. However, because CTR mode is malleable, you should always add an HMAC to confirm that the encrypted data has not been tampered with.
+
+In some situations it may be preferable for performance reasons to use a cipher mode such as GCM which combines encryption and authentication; but this benefit is small (HMACs are fast) and increases the risk of side channel attacks (because attacker-supplied input is processed).
+
+UPDATE: I've posted a more detailed explanation about why I recommend using the Encrypt-then-MAC composition.
+
+
+AES key length: Use 256-bit AES keys.
+
+Theoretically speaking, 128-bit AES keys should be enough for the forseeable future; but for most applications the increased cost of using 256-bit keys instead of 128-bit keys is insignificant, and the increased key length provides a margin of security in case a side channel attack leaks some but not all of the key bits.
+
+
+Symmetric signatures (added 2009-09-28): Use an HMAC.
+
+I didn't think it was necessary to point this out, but I realize now (2009-09-28, three months after first writing this list) that there are some people for whom it should be spelled out. Do not design your own way of generating symmetric signatures (e.g., for API requests); especially avoid the common "concatenate key and data, then input to a hash function" approach.
+
+
+Hash / HMAC algorithm: Use SHA256 / HMAC-SHA256 for now, but plan on upgrading to the upcoming SHA-3 hash within the next 5-10 years.
+
+Given the recent attacks on MD5 and SHA1, I would not be surprised if SHA256 is "broken" within the next few years; but moving from a theoretical break (i.e., an algorithm for finding a collision in less than 2^128 time) to a practical weakness is likely to take several years (based on the history of past hash algorithms). While SHA512 could be used as a "stop-gap" measure in the event the SHA256 is broken before SHA-3 is available (realizing, of course, that the similarities between the designs of SHA256 and SHA512 make it likely that any weakness in SHA256 would translate to a corresponding weakness in SHA512), the fact that SHA512 uses 64-bit arithmetic makes it more likely that implementations on 32-bit systems will be vulnerable to side channel attacks.
+
+
+Random IDs: Use 256-bit random numbers.
+
+The "birthday paradox" states that in order to avoid collisions you need to select random values from twice the bit-size of the number of values you will be selecting. I doubt any application thus far has come close to selecting 2^64 random values; but if computers continue to scale exponentially, this could occur in the upcoming decade. In most applications, using 256-bit random values instead of 128-bit random values carries no significant increase in cost; but it puts randomly finding a collision safely into the realm of "not going to happen with all the computers on Earth in the lifetime of the solar system" problems.
+
+
+Password handling: As soon as you receive a password, hash it using scrypt or PBKDF2 and erase the plaintext password from memory.
+
+Do NOT store users' passwords. Do NOT hash them with MD5. Use a real key derivation algorithm. PBKDF2 is the most official standard; but scrypt is stronger.
+
+Please keep in mind that even if YOUR application isn't particularly sensitive, your users are probably re-using passwords which they have used on other, more sensitive, websites -- so if you screw up how you store your users' passwords, you might end up doing them a lot of harm.
+
+
+Asymmetric encryption: Use RSAES-OAEP with SHA256 as the hash function, MGF1+SHA256 as the mask generation function, and a public exponent of 65537. Make sure that you follow the decryption algorithm to the letter in order to avoid side channel attacks.
+
+Many applications use PKCS #1 v1.5 encryption; this algorithm has known weaknesses and should be avoided (there are workarounds for said weaknesses -- but there might also be other undiscovered weaknesses). In contrast, RSAES-OAEP has been proven to be secure under fairly reasonable assumptions.
+
+I recommend using SHA256 here mostly for consistency. Many people use SHA1, and in this context it is perfectly adequate -- but why use two different hashes if you can get away with only using one?
+
+Using a public exponent of 65537 is not absolutely necessary -- a public exponent of 3 is theoretically just as secure -- but there have been a couple of attacks (against PKCS #1 v1.5 padding, and my cache based side channel attack) which were much easier given a small public exponent, so it's possible that using a public exponent of 65537 will help defend against weaknesses discovered in the future.
+
+If you are not careful about how you decrypt RSAES-OAEP-encrypted data, you will leak information which can be used to steal your key; if you follow the algorithm precisely you will be safe, but it is very easy to get this wrong.
+
+
+Asymmetric signatures: Use RSASSA-PSS with SHA256 as the hash function, MGF1+SHA256 as the mask generation function, and a public exponent of 65537.
+
+The RSASSA-PSS signature scheme has been proven to be secure under reasonable assumptions; there is really no reason to use anything else. Unlike RSAES-OAEP, the choice of hash function is important here; I recommend SHA256, but (as discussed above) switching to SHA-3 will be advisable once that standard is released. As with RSAES-OAEP, using a public exponent of 65537 is not strictly necessary, but might help prevent some attacks.
+
+Many people recommend using DSA or elliptic curve based signature schemes which are faster and/or produce smaller signatures than RSASSA-PSS; in some situations these advantages are important, but in most cases I prefer RSASSA-PSS because its relative simplicity makes implementation errors and side channel attacks less likely.
+
+
+Diffie-Hellman: Operate over the 2048-bit Group #14 with a generator of 2. Be careful about side channel attacks.
+
+This group is large enough that it should be secure for the near future; and as it is defined based on the binary digits of Pi, it clearly was not chosen to have any specific weaknesses. There is absolutely no excuse for allowing Diffie-Hellman groups to be defined at run-time; this adds a great deal of complexity and potential for cryptographic weaknesses, and serves no purpose whatesoever.
+
+Because Diffie-Hellman requires operating on attacker-supplied input, there is a significant danger of side channel attacks; using some form of base or exponent blinding may be required.
+
+
+Website security: Use OpenSSL.
+
+OpenSSL has a horrible track record for security; but it has the saving grace that because it is so widely used, vendors tend to be very good at making sure that OpenSSL vulnerabilities get fixed promptly. I wish there was a better alternative, but for now at least OpenSSL is the best option available.
+
+UPDATE: For added security, terminate SSL connections in restricted environment and pass the raw HTTP over a loopback connection to your web server.
+
+
+Client-server application security: Distribute the server's public RSA key with the client code, and do not use SSL.
+
+One of the reasons OpenSSL has such a poor track record is that the SSL protocol itself is highly complex. Certificate chains, revocation lists, ASN.1, multiple different hashing and encryption schemes... when you have over a hundred thousand lines of code, it's no wonder that bugs creep in.
+
+If you're distributing client code which speaks to a server you operate, there is no need to use SSL; instead, you can distribute the server's public RSA key (or its hash) along with the client code, and "bootstrap" the security process that way. I do this in FreeBSD for the FreeBSD Update and Portsnap services, and I also do this in Tarsnap. It's simple; it works; and it's secure.
+
+
+Online backups: Use Tarsnap.
+
+Ok, I have a slight bias here! -- but in all honesty, I do trust Tarsnap's security far more than that of any other backup system, and not just because I wrote tarsnap. Most backup systems are written by people who are interested in backups, and have security more or less as an afterthought; in contrast, I know very little about backups (I would never have gotten started with tarsnap if it hadn't been for Tim Kientzle writing his excellent libarchive library and effectively dropping a free tar implementation in my lap), but I do know a lot about cryptography and security; and I wrote tarsnap from that perspective.
+
+While I agree that most of my readers should never write any cryptographic code, I hope that those of you who do end up writing cryptographic code will end up writing better and more secure code thanks to this -- and more importantly, I hope those of you who never write any cryptographic code will learn enough from this that you will be able to recognize when people are doing things wrong. Bugs become shallow given enough eyeballs -- but only when those eyeballs know enough about the relevant code to be able to recognize bugs when they are spotted.

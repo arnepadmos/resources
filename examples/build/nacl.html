@@ -1,0 +1,136 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style type=text/css>pre{font-size:large;}tt{font-size:large;}</style>
+<title>
+Internals
+</title>
+</head>
+<body>
+<h1>Internals</h1>
+Are you contributing code to NaCl?
+Here's some advice on how to write your code.
+<h2>Language choice</h2>
+All NaCl functions are <i>distributed</i> as C implementations,
+often with assembly-language implementations as extra options.
+C++ and Python are handled as wrappers around the C implementations.
+<p>
+There are an increasing number of cases where
+the C implementations and assembly-language implementations
+are automatically generated from code
+that was actually written in another language, such as CAO or qhasm.
+This automatic generation takes place as part of creating the NaCl distribution,
+not as part of installing NaCl.
+<h2>Naming conventions: an example</h2>
+The reference SHA-512 implementation in NaCl is
+<tt>crypto_hash/sha512/ref/hash.c</tt>,
+which defines a <tt>crypto_hash</tt> function as follows:
+<pre>
+     #include "crypto_hash.h"
+
+     int crypto_hash(unsigned char *out,const unsigned char *in,unsigned long long inlen)
+     {
+       ...
+     }
+</pre>
+An accompanying file
+<tt>crypto_hash/sha512/ref/api.h</tt>
+says
+<pre>
+     #define CRYPTO_BYTES 64
+</pre>
+to indicate that this function produces a 64-byte hash.
+<p>
+The NaCl compilation scripts automatically create <tt>crypto_hash.h</tt>
+with various macros, including the following:
+<pre>
+     #define crypto_hash crypto_hash_sha512
+     #define crypto_hash_sha512 crypto_hash_sha512_ref
+     #define crypto_hash_BYTES crypto_hash_sha512_BYTES
+     #define crypto_hash_sha512_BYTES crypto_hash_sha512_ref_BYTES
+     #define crypto_hash_sha512_ref_BYTES 64
+     #define crypto_hash_PRIMITIVE "sha512"
+     #define crypto_hash_IMPLEMENTATION crypto_hash_sha512_IMPLEMENTATION
+     #define crypto_hash_sha512_IMPLEMENTATION "crypto_hash/sha512/ref"
+</pre>
+This means that <tt>hash.c</tt> actually defines a <tt>crypto_hash_sha512_ref</tt> function.
+Normally, as an implementor, you don't have to think about this;
+but if you avoid including <tt>crypto_hash.h</tt>
+(for example, because you're actually writing <tt>hash.s</tt> instead of <tt>hash.c</tt>)
+then you should make sure to define <tt>crypto_hash_sha512_ref</tt>.
+<h2>Multiple implementations of the same primitive</h2>
+To add another SHA-512 implementation,
+create another subdirectory of <tt>crypto_hash/sha512</tt>.
+For example, you might choose
+<tt>crypto_hash/sha512/core2</tt>
+for an implementation optimized for the Core 2.
+Inside that subdirectory,
+create an <tt>api.h</tt> file that defines <tt>CRYPTO_BYTES</tt>,
+and a <tt>.c</tt> file that defines <tt>crypto_hash</tt>.
+<p>
+You can use names other than <tt>hash.c</tt>.
+You can split your code across several files <tt>*.c</tt>
+defining various auxiliary functions;
+the files will be automatically compiled together.
+You can use external names prefixed by the implementation name:
+for example, <tt>crypto_hash/sha512/core2</tt>
+can define
+<tt>crypto_hash_sha512_core2_iv</tt>,
+<tt>crypto_hash_sha512_core2_expand</tt>,
+etc.
+<h2>Branches</h2>
+Do not use secret data to control a branch.
+In particular,
+do not use the <tt>memcmp</tt> function to compare secrets.
+Instead use <tt>crypto_verify_16</tt>, <tt>crypto_verify_32</tt>, etc.,
+which perform constant-time string comparisons.
+<p>
+Even on architectures that support fast constant-time conditional-move instructions,
+always assume that a comparison in C is compiled into a branch, not a conditional move.
+Compilers can be remarkably stupid.
+<h2>Array lookups</h2>
+Do not use secret data as an array index.
+<p>
+Early plans for NaCl would have allowed exceptions to this rule
+inside primitives specifically labelled <tt>vulnerable</tt>,
+in particular to allow fast <tt>crypto_stream_aes128vulnerable</tt>,
+but subsequent research showed that this compromise was unnecessary.
+<h2>Dynamic memory allocation</h2>
+Do not use heap allocators (<tt>malloc</tt>, <tt>calloc</tt>, <tt>sbrk</tt>, etc.)
+or variable-size stack allocators (<tt>alloca</tt>, <tt>int <i>x</i>[<i>n</i>]</tt>, etc.) in C NaCl.
+<h2>Thread safety</h2>
+Do not use global variables
+(i.e., static variables or variables defined outside functions)
+in C NaCl.
+<h2>Alignment</h2>
+Do not assume that the input arrays or output arrays have any particular alignment.
+If you want to use, e.g., an aligned 16-byte load instruction for speed,
+check at the top of your function that the input array is properly aligned,
+and have a (slower) fallback in case the input array is not properly aligned.
+<h2>Specific integer sizes</h2>
+If you want a 32-bit integer in C NaCl,
+use <tt>crypto_int32</tt>
+after <tt>#include &lt;crypto_int32.h&gt;</tt>.
+This is more portable than <tt>int32_t</tt> from <tt>inttypes.h</tt>,
+and more portable than <tt>int32_t</tt> from <tt>stdint.h</tt>.
+Similar comments apply to
+<tt>crypto_int8</tt>,
+<tt>crypto_int16</tt>,
+<tt>crypto_int32</tt>,
+<tt>crypto_int64</tt>,
+<tt>crypto_uint8</tt>,
+<tt>crypto_uint16</tt>,
+<tt>crypto_uint32</tt>,
+<tt>crypto_uint64</tt>.
+<h2>Variable definitions</h2>
+Define stack variables at the beginning of each function in C NaCl.
+Some C compilers will accept variable definitions after statements, but some won't.
+<h2>Comments</h2>
+Do not use C++-style comments (double slashes) in C NaCl.
+Some C compilers will accept these comments, but some won't.
+<h2>Version</h2>
+This is version 2011.06.26 of the internals.html web page.
+</td></tr></table>
+</body>
+</html>

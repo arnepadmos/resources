@@ -1,0 +1,194 @@
+<html>
+<body>
+<a href="../djb.html">D. J. Bernstein</a>
+<br><a href="../mail.html">Internet mail</a>
+<br><a href="../qmail.html">qmail</a>
+<h1>The qmail security guarantee</h1>
+In March 1997, I offered $500 to the first person
+to publish a verifiable security hole in the latest version of qmail:
+for example,
+a way for a user to exploit qmail to take over another account.
+<p>
+My offer still stands.
+Nobody has found any security holes in qmail.
+<p>
+Of course, ``security hole <i>in</i> qmail'' does not include
+problems <i>outside</i> of qmail:
+for example,
+NFS security problems, TCP/IP security problems, DNS security problems,
+bugs in scripts run from .forward files,
+and operating system bugs generally.
+It's silly to blame a problem on qmail
+if the system was already vulnerable before qmail was installed!
+I also specifically disallowed denial-of-service attacks:
+they are present in every MTA, widely documented,
+and very hard to fix without a massive overhaul of several major protocols.
+(UNIX does offer some tools to prevent <i>local</i> denial-of-service attacks;
+see my
+<a href="../docs/resources.html">resource exhaustion</a> page
+for more information.
+See also my page responding to
+<a href="venema.html">Wietse Venema's slander</a>.)
+<p>
+A group of qmail users offered a $1000 prize for one year under similar rules.
+The prize was not claimed;
+the money was donated to the Free Software Foundation.
+<p>
+In May 2005,
+Georgi Guninski
+claimed that some potential 64-bit portability problems
+allowed a ``remote exploit in qmail-smtpd.''
+This claim is denied.
+Nobody gives gigabytes of memory to each qmail-smtpd process,
+so there is no problem with qmail's assumption
+that allocated array lengths fit comfortably into 32 bits.
+<h2>Why is qmail secure?</h2>
+The reason I started the qmail project was that
+I was sick of the security holes in sendmail and other MTAs.
+Here's what I wrote in December 1995:
+<blockquote>
+Every few months CERT announces Yet Another Security Hole In
+Sendmail---something that lets local or even remote users take complete
+control of the machine. I'm sure there are many more holes waiting to be
+discovered; sendmail's design means that any minor bug in 41000 lines of
+code is a major security risk. Other popular mailers, such as Smail, and
+even mailing-list managers, such as Majordomo, seem just as bad.
+</blockquote>
+As it turned out,
+<a href="../maildisasters/sendmail.html">fourteen security holes</a>
+were discovered in sendmail in 1996 and 1997.
+<p>
+I followed seven fundamental rules in the design and implementation of qmail:
+<ol>
+<li>Programs and files are not addresses. Don't treat them as addresses.
+<p>
+sendmail treats programs and files as addresses.
+Obviously random people
+can't be allowed to execute arbitrary programs or write to arbitrary files,
+so sendmail goes through horrendous contortions trying to keep
+track of whether a local user was ``responsible'' for an address.
+This has proven to be an unmitigated disaster.
+<p>
+In qmail, programs and files are not addresses.
+The local delivery agent, qmail-local,
+can run programs or write to files as directed by
+<tt>~user/.qmail</tt>, but it's always running as that user.
+(The notion of ``user'' is configurable, but root is never a user.
+To prevent silly mistakes,
+qmail-local makes sure that
+neither <tt>~user</tt> nor <tt>~user/.qmail</tt> is world-writable.)
+<p>
+Security impact:
+<tt>.qmail</tt>,
+like <tt>.cshrc</tt> and <tt>.exrc</tt> and various other files,
+means that anyone who can write arbitrary files as a user can execute
+arbitrary programs as that user. That's it.
+<p>
+<li>Do as little as possible in setuid programs.
+<p>
+A setuid program must operate in a very dangerous environment:
+a user is under complete control of
+its fds, args, environ, cwd, tty, rlimits, timers, signals, and more.
+Even worse,
+the list of controlled items varies from one vendor's UNIX to the next,
+so it is very difficult to write portable code that cleans up everything.
+<p>
+Of the twenty most recent sendmail security holes,
+eleven worked only because the entire sendmail system is setuid.
+<p>
+Only one qmail program is setuid: qmail-queue.
+Its only purpose is to add a new mail message to the outgoing queue.
+<p>
+<li>Do as little as possible as root.
+<p>
+The entire sendmail system runs as root,
+so there's no way that its mistakes
+can be caught by the operating system's built-in protections.
+In contrast,
+only two qmail programs, qmail-start and qmail-lspawn, run as root.
+<p>
+<li>Move separate functions into mutually untrusting programs.
+<p>
+Even if qmail-smtpd, qmail-send, qmail-rspawn, and qmail-remote
+are completely compromised,
+so that an intruder has control over the
+qmaild, qmails, and qmailr accounts and the mail queue,
+he still can't take over your system.
+None of the other programs trust the results from these four.
+<p>
+In fact, these programs don't even trust each other.
+They are in three groups:
+qmail-smtpd, which runs as qmaild;
+qmail-rspawn and qmail-remote, which run as qmailr;
+and qmail-send, the queue manager, which runs as qmails.
+Each group is immune from attacks by the others.
+<p>
+(From root's point of view,
+as long as root doesn't send any mail,
+only qmail-start and qmail-lspawn are security-critical.
+They don't write any files or start any other programs as root.)
+<p>
+<li>Don't parse.
+<p>
+I have discovered that
+there are two types of command interfaces in the world of computing:
+good interfaces and user interfaces.
+<p>
+The essence of user interfaces is <i>parsing</i>:
+converting an unstructured sequence of commands,
+in a format usually determined more by psychology than by solid engineering,
+into structured data.
+<p>
+When another programmer wants to talk to a user interface,
+he has to <i>quote</i>:
+convert his structured data into an unstructured sequence of commands
+that the parser will, he hopes,
+convert back into the original structured data.
+<p>
+This situation is a recipe for disaster.
+The parser often has bugs:
+it fails to handle some inputs according to the documented interface.
+The quoter often has bugs:
+it produces outputs that do not have the right meaning.
+Only on rare joyous occasions does it happen that
+the parser and the quoter both misinterpret the interface in the same way.
+<p>
+When the original data is controlled by a malicious user,
+many of these bugs translate into security holes.
+Some examples:
+the Linux <tt>login -froot</tt> security hole;
+the classic <tt>find | xargs rm</tt> security hole;
+the Majordomo injection security hole.
+Even a simple parser like getopt
+is complicated enough for people to screw up the quoting.
+<p>
+In qmail, all the internal file structures are incredibly simple:
+text0 lines beginning with single-character commands.
+(text0 format means that
+lines are separated by a 0 byte instead of line feed.)
+The program-level interfaces don't take options.
+<p>
+All the complexity of parsing RFC 822 address lists and rewriting headers
+is in the qmail-inject program,
+which runs without privileges and is essentially part of the UA.
+<p>
+<li>Keep it simple, stupid.
+<p>
+See BLURB in the qmail package
+for some of the reasons that qmail is so much smaller than sendmail.
+There's nothing inherently complicated about writing a mailer.
+(Except RFC 822 support; but that's only in qmail-inject.)
+Security holes can't show up in features that don't exist. 
+<p>
+<li>Write bug-free code.
+<p>
+I've mostly given up on the standard C library.
+Many of its facilities, particularly stdio, seem designed to encourage bugs.
+A big chunk of
+qmail is stolen from a basic C library that I've been developing for
+several years for a variety of applications.
+The stralloc concept and getln() make it very easy to avoid
+buffer overruns, memory leaks, and artificial line length limits.
+</ol>
+</body>
+</html>

@@ -1,0 +1,9 @@
+OSCP holders can:
+
+1. Use multiple information gathering techniques to identify and enumerate targets running various operating systems and services.
+2. Write basic scripts and tools to aid in the penetration testing process.
+3. Analyze, correct, modify, cross-compile, and port public exploit code.
+4. Successfully conduct both remote and client side attacks.
+5. Identify and exploit XSS, SQL injection, and file inclusion vulnerabilities in web applications.
+6. Deploy tunneling techniques to bypass firewalls.
+7. Demonstrate creative problem solving and lateral thinking.

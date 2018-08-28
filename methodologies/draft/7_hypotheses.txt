@@ -1,0 +1,337 @@
+Hypotheses in Secure Protocol Design
+
+
+Introduction
+
+
+Consider this to be my 7 Laws of Secure Protocol Design. They are not really laws because I'm not yet dead, but I have to get them down before that otherwise I'll miss out.
+
+They continue to evolve, both their content and their number. Today, the number N is 7, which also is the magical number of Financial Cryptography. This be coincidence, not science, and expect it to change, as science once again takes to the sword and slaughters the dragons and myths of the dark ages of security.
+
+These hypotheses are opinionated, yet they come of having read, experienced and been battered by many secure protocols, and built a few as well. After a while -- after repeated abuses at the hands of other peoples ideas -- one perceives patterns out of pain, and those patterns tend to predict things: success or failure, stalling or booming, security or smoke.
+
+Enjoy!
+
+H1 - The One True Cipher Suite.
+H2 - Divide and Conquer. Commentary: 1, 2,
+H3 - There is Only One Mode and it is Secure and commentary: 1, 2, 3. And now, a new case study: Zooko on ZRTP.
+H4 - The First Requirement of Security is Usability
+H5 - Security Begins at the Application and Ends at the Mind.
+H6 - It's Your Job. Do it! Some commentary and introductions: H6.1, H6.2, H6.3, H6.4.
+H7
+
+Acknowledgements
+
+Twan van der Schoot as always gave a challenging critique.
+
+Other Works
+
+Jerome Saltzer and Michael Schoeder, The Protection of Information in Computer Systems, PDF espouses 8 principles
+Adi Shamir's 3 Laws in Security
+Kerrkhoffs' 6 Principles
+Ian Grigg, FC in 7 Layers
+Nick Szabo, TTP Minimizing Methodology
+Ian Grigg, Pareto-secure
+Ian Grigg, Growth and Fraud
+
+
+Hypothesis #1 -- The One True Cipher Suite
+
+
+In cryptoplumbing, the gravest choices are apparently on the nature of the cipher suite. To include latest fad algo or not? Instead, I offer you a simple solution. Don't.
+
+There is one cipher suite, and it is numbered Number 1.
+
+Cypersuite #1 is always negotiated as Number 1 in the very first message. It is your choice, your ultimate choice, and your destiny. Pick well.
+
+If your users are nice to you, promise them Number 2 in two years. If they are not, don't. Either way, do not deliver any more cipher suites for at least 7 years, one for each hypothesis.
+
+And then it all went to pot...
+
+We see this with PGP. Version 2 was quite simple and therefore stable -- there was RSA, IDEA, MD5, and some weird padding scheme. That was it. Compatibility arguments were few and far between. Grumbles were limited to the padding scheme and a few other quirks.
+
+Then came Versions 3-8, and it could be said that the explosion of options and features and variants caused more incompatibility than any standards committee could have done on its own.
+
+Avoid the Champagne Hangover
+
+Do your homework up front.
+
+Pick a good suite of ciphers, ones that are Pareto-Secure, and do your best to make the combination strong [1]. Document the short falls and do not worry about them after that. Cut off any idle fingers that can't keep from tweaking. Do not permit people to sell you on the marginal merits of some crazy public key variant or some experimental MAC thing that a cryptographer knocked up over a weekend or some minor foible that allows an attacker to learn your aunty's birth date after asking a million times.
+
+Resist the temptation. Stick with The One.
+
+References
+
+[1] Ian Grigg, "Pareto-Secure."
+
+
+Hypothesis #2 -- Divide and Conquer
+
+
+Secure protocol design is much like design of regular protocols, but it is more obsessive about errors. Real computer science is about dealing with errors, and cryptoplumbing just deals with more of reality, and more aggression. What might be achieved with a restart or reboot in other designs could cause disaster in a security context. Here are some protocol tips to guide you on your way.
+
+#2.1 Protocols Divide Naturally Into Two Parts
+
+Good protocols divide into two parts, the first of which says to the second,
+
+trust this key completely!
+
+Frequently we see this separation between a Key Exchange phase and Wire Encryption phase within a protocol. Mingling these phases seems to result in excessive confusion of goals, whereas clean separation improves simplicity and stability.
+
+Note that this principle is recursive. That is, your protocol might separate around an exchange of keys, being part 1 for key exchange, and part 2 for encryption. The first part might then separate into two more components, one based on public keys and the other on secret keys, which we can call 1.a and 1.b. Some protocols separate further, for example primary (or root) public keys and local public keys, and, session negotiation secret keys and payload encryption keys.
+
+As long as the borders are clean and simple, this game is good because it helps us to conquer complexity. But when the borders are breached, we will add complexity which adds insecurity.
+
+A Warning. An advantage from this hypothesis might appear to be that one can swap in a different Key Exchange, or upgrade the protection protocol, or indeed repair one or other part without doing undue damage. But bear in mind the #1: just because these natural borders appear doesn't mean you should slice, dice, cook and book like software people do.
+
+#2.2 KISS
+
+... you can make a secure system either by making it so simple you know it's secure, or so complex that no one can find an exploit.
+allegedly Dan Geer, as reported by Jon Callas.
+
+In the military, KISS stands for keep it simple, stupid because soldiers are dumb by design (it is very hard to be smart when being shot at). Crypto often borrows from the military, but we always need to change a bit. In this case, KISS stands for
+
+Keep the Interface Stupidly Simple.
+
+When you divide your protocol into parts, KISS tells you that even a programmer should find every part easy to understand [1]. This is more than fortuitous, it is intentional, because the body programmer is your target audience. Remember that your hackers have to also understand all the other elements of good programming and systems building, so their attention span will be limited to around 1% of their knowledge space.
+
+A good example of this is a block cipher. A smart programmer can take a paper definition of a secret-key cipher or a hash algorithm and code it up in a weekend, and know he has got it right.
+
+Why is this? Three reasons:
+
+- The interface is simple enough. There's a secret key, there's a block of input, and there's a block of output. Each is generally defined as a series of bits, 128 being common these days. What else is there to say?
+- There is a set of numbers at the bottom of that paper description that provides test inputs and outputs. You can use those numbers to show basic correctness.
+- The characteristic of cryptography algorithms is that they are designed to screw up fast and furiously. Wrong numbers will 'avalanche' through the internals and break everything. Which means, to your good fortune, you only need a very small amount of testing to show you got it very right.
+
+An excellent protocol example of a simple interface is SSL. No matter what you think of the internals of the protocol or the security claims, the interface is designed to exactly mirror the interface to TCP. Hence the name, Secure Socket Layer. An inspired choice! The importance of this is primarily the easy understanding achieved by a large body of programmers who understand the metaphor of a stream.
+
+#2.3 Do not use anything you can't explain
+
+By now, you should be getting the idea that any complicated mumbo jumbo from the cryptographers should be excluded. If you can't apply KISS, and you can't understand it, drop it. If the crypto blah blah divides you, your protocol will be conquered.
+
+To paraphrase Adi Shamir, only the simplest crypto survives. There is no requirement for you to feel even the slightest embarrassment by failing to understand. It is the crypography world's failure, not your problem. Move on, use something simpler.
+
+Practically speaking, the things to understand from the cryptography world are secret key block ciphers (AES), modes (CCB), hashes (SHA1 and cousins), and HMACs. Not much more, and even these you should not understand more than you understand the networking side: coordination problem, atomic actions, sliding windows, request/response models, datagrams, etc.
+
+#2.4 Avoid Public Key Cryptography like the Plague
+
+Public key cryptography is the kiss of death to simplicity. The problem is that it is not simple, not amenable to KISS, and full of traps that will swallow a battleship. Although the very basic idea is understandable and elegant, none of the instantiations of public key cryptography can create simple interfaces that are free of minefields.
+
+Full-sized protocols will often need something like public key cryptography, but that doesn't mean you have to place them center stage. You should work aggressively to reduce your reliance on the public key phase.
+
+Look around for help in this area. This might be the one place where you bring in an experienced cryptoplumber to help with the design and interface design. Also, ask around how people reduce or even avoid their dependence on this phase.
+
+Highly successful applications are often (but not always) characterised by this one feature: how they successfully dumbed down the public key phase to the extent that it couldn't hurt them.
+
+#2.5 Bootstrap Relationships into Key Exchanges
+
+Key sharing is hard. We have no unified or simple theory for key sharing, and more work than we care to admit has broken on this simple problem. Most long-term problems occur in this one area.
+
+Use the application's natural paths of communication to share keys. Almost all applications have natural manners and means by which information is already transmitted. Nothing exists in a vacuum: banks send out snail mail, maillists send passwords out in email, chat programs work to link people who are often already linked in meatspace. For most applications, there are already many means you can use to share keys. Study them carefully, and look for ways to piggy back sufficient information on them to get enough key material across.
+
+The goal here is to seamlessly piggy-back (#3) the initial key sharing operations over some other channel or process, so as to
+
+a. generate enough key material to securely bootstrap to something strong, and
+b. to not require any additional work on behalf of the users.
+
+This latter (b) is perhaps the most important principle in cryptoplumbing for users, and also the most forgotten. Kerckhoffs said it first in 1883: if it is too much work for the user, it will not be used (his 6th principle).
+
+References
+
+[1] Finally, a library that dares to be simple: "The security impact of a new cryptographic library," Daniel J. Bernstein, Tanja Lange, and Peter Schwabe, Progress in Cryptology – LATINCRYPT 2012, Lecture Notes in Computer Science 7533, Springer-Verlag (2012), pp 159–176. Date: 2012-07-25
+
+
+Hypothesis #3 -- There is only one Mode, and it is Secure.
+
+
+Good Protocols bootstrap into secure mode, immediately. On first time starting up, the protocol goes into secure mode. From there on, it only gets better.
+
+There is no insecure mode. No button to turn off, no feature to forget, no way to trick the application.
+
+There should be no necessary setup by the user. If a public key is needed, make it. If the other side needs a secret key, send it. If you need a password, invent it and suggest the user replaces it, don't ask for it and block the action.
+
+It should take an Act of God to start up in anything but the best possible security you can manage. A Presidential Order doesn't cut it. Make your protocol immorally promiscuous and your users will thank you, even if your reputation will take a dive for about 5 years. Don't worry, your users will outlive their users.
+
+In practice, a perfect start-up is impossible, and we do not let a perfect theory be the enemy of a good protocol. Your protocol should leap into life with joy and abandon, and reward your users with instantly secure communication. Let an expert add some extra features if they want to get that warm gooey feeling of no-risk security, but never let him tell you that near enough isn't good enough. Instead, send him paddling over to a committee [H4.4].
+
+
+Hypothesis #4 -- The First Requirement of Security is Usability
+
+
+Wherein, I explain why Usability is the first and the important requirement in security. Put it anywhere else, like number 2, and you risk failure. There is no clash between usability and security, only usable security can deliver security, and only delivered security is security.
+
+#4.1 Zero Users means Zero Security
+
+The most common failure mode of any security protocol is not being used by users, at all.
+
+There have been thousands of attempts at secure protocols in recent Internet times. Many did not get completed, many were completed but were rejected as too hard to use, and many great protocols missed the boat and were swamped by bad protocols. These are therefore all failures; their delivered security is zero. Zip, zilch, nada.
+
+Perfect security, multiplied by zero users, always equals Zero security. Try it with any variation of zero you like, and any grade of security. Count up as many security projects as you like, and look at the very strong correlation: Security perfectly reaches zero with all known forms of mathematics, if it is has zero users.
+
+Only a delivered protocol that protects and ships packets for actual, warm, live, talkative users can deliver security. A good protocol with some gaping holes will always outperform a perfect protocol that remains undelivered, in security terms. A good protocol in widespread use will generally outperform a better protocol that is poorly used.
+
+Again simple mathematics tells us why: a protocol that is perfect that protects one person perfectly, is still limited to that one person. The mathematics of security says that is a one. If you can reduce your protocol's theoretical security from 100% to 99%, and get ten users, that then means you can reach 9.9, in delivered security to those ten users. Approximately. If you can reduce to 98%, but gain 100 users then your security reaches 98.
+
+Security is as delivered to users, and is summed across them. Therefore, it goes up almost perfectly with the number of users. By far the biggest determinant of security is then the number of users that you can gain. Consider that first and foremost.
+
+#4.2 Usability Determines the Number of Users
+
+Ease of use is the most important determinant to the number of users. Ease of implementation is important, ease of incorporation is also important, and even more important is the ease of use by end-users. This reflects a natural subdivision into several classes of users: implementors, integrators and end-users, each class of which can halt the use of the protocol if they find it ... unusable. As they are laid out serially between you and the marketplace, you have to consider usability to all of them.
+
+The protocol should be designed to be easy to code up, so as to help implementors help integrators help users. It should be designed to be easy to interface to, so as to help integrators help users. It should be designed to be easy to configure, so as to help users get security.
+
+If there are any complex or tricky features, ask yourself whether the benefit is really worth the cost of coder's time. It is not that developers cannot do it, it is simply that they will not do it; nobody has all the time in the world, and a protocol that is twice as long to implement is twice as likely to not get done.
+
+Same for integrators of systems. If the complexity provided by the protocol and the implementation causes X amount of work, and another protocol costs only X/2 then there is a big temptation to switch. Regardless of absolute or theoretical security.
+
+Same for users.
+
+#4.3 Simplicity is Inversely Proportional to the Number of Designers
+
+Never doubt that a small group of thoughtful, committed citizens can change the world. Indeed, it is the only thing that ever has.
+Margaret Mead
+
+Simplicity is proportional to the inverse of the number of designers. Or is it that complexity is proportional to the square of the number of designers?
+
+Sad but true, if you look at the classic best of breed protocols like SSH and PGP, they delivered their best results when one person designed them. Even SSL was mostly secure to begin with, and it was only the introduction of PKI with its committees, world-scale identity models, digital signature laws, accountants and lawyers that sent it into orbit around Pluto. Committee-designed monsters such as IPSec and DNSSEC aren't even in the running.
+
+Sometimes a protocol can survive a team of two, but we are taking huge risks (remember the biggest failure mode of all is failing to deliver anything). Either compromise with your co-designer quickly or kill him. Your users will thank you for either choice, they do not benefit if you are locked in a deadly embrace over the sublime but pernickety benefits of MAC-then-encrypt over encrypt-then-MAC, or CBC versus Counter-mode, or or or...
+
+#4.4 No Committees!
+
+.... This is a typical committee effect. Committees are notorious for adding features, options, and additional flexibility to satisfy various factions within the committee. As we all know, this additional complexity and bloat is seriously detrimental to a normal (functional) standard. However, it has a devastating effect on a security standard....
+Lesson 1 Cryptographic protocols should not be developed by a committee.
+Niels Ferguson and Bruce Schneier [1].
+
+It should be clear by now that committees are totally out of the question as ho-hum is incompatible with security [2]. They are like whirlpools, great spiralling sinks of talent, so paddle as fast as possible in the other direction.
+
+On the other hand, if you are having trouble shrinking your team or agreeing with them, a committee over yonder can be useful as a face saving idea. Point them in that direction of the whirlpool, give them a nudge, and then get back to work.
+
+#4.5 Think like a User
+
+In contrast to the general practice of the world of deep software engineering and cryptography, you have to think as if you are a user.
+
+#4.6 Kherckhoffs was right in Reverse!
+
+Follow Kerckhoffs principles in order 6,5,4,3,2,1. Hang his words on your wall, and tattoo his 6th Principle on your forehead. Indeed, #4.2 above is simply the logic behind the famous 6th. He says it much better than I can, but he said it in French.
+
+Usability should not be sacrificed. In practice, out in the field, the sacrifice of usability will cause a user to shift to a more insecure means. Holistically, this means you have failed to secure the user's traffic. Ideally the protocol should make it easier to use in secure form than any alternate, because convenience is the most important direct metric.
+
+#4.7 Security Cannot be Delivered Encumbered
+
+Always use totally unrestricted components. It may not matter to you, but many users have real problems when it comes to accessing non-free algorithms. If you include a non-free algorithm, not only are you annoying the cryptogreenies, but you are also asking anyone who distributes the algorithm to get a licence or permission or sanction. Even if you are being contracted for a company that has no view on this, or likes the idea of playing with the big boys and buying licences and so forth, they also will eventually get sick of the constant drain of contract negotiations, licence restrictions and all the other hooks that an algorithm supplier sticks in.
+
+As your end-users need to get a distro from somewhere, and as the crypto protocol is probably a part built into an application, most users will be facing two (2) distro layers before they get back to you, if not more. Which means you are probably asking three (3) different groups to walk the gauntlet in order to use the protocol. The mathematics are against it, even before we get into the economics.
+
+References
+
+[1] Niels Ferguson and Bruce Schneier, "A Cryptographic Evaluation of IPsec," 2003.
+
+[2] Maarten van Emden cites Fred Brooks:
+
+In one of the most cited papers in all of computing, F.P. Brooks [9] contrasts programming systems or languages that have fanatical adherents to a bunch of ho-hum items that, though perhaps useful, do not. He notes that the former were created by individuals, the latter by committees. By implication he suggests that committee-designed artefacts are necessarily in the ho-hum category. Brooks identifies the distinguishing criterion as conceptual integrity. Brooks places Algol 60 in the latter category, because committee-designed things supposedly necessarily lack conceptual integrity.
+
+"How recursion got into programming: a comedy of errors," 2003.
+
+
+Hypothesis #5 -- Security Begins at the Application and Ends at the Mind
+
+
+The application must do most of the work [1]. For really secure systems, only application security is worthwhile. That is simply because most applications are delivered into environments where they have little control or say over how the underlying system is set up.
+
+#5.1 Security below the application layer is unreliable
+
+For security needs, there is little point in for example relying on (specifying) IPSec or the authentication capabilities or PKI or trusted rings or such devices. These things are fine under laboratory conditions, but you have no control once it leaves your door. Out there in the real world, and even within your own development process, there is just too much scope for people to forget or re-implement parts that will break your model.
+
+If you need it, you have to do it yourself. This applies as much to retries and replay protection as to authentication and encryption; in a full secure system you will find yourself dealing with all these issues at the high layer eventually, anyway, so build them in from the start.
+
+Try these quick quizzes. It helps if you close your eyes and think of the question at the deeper levels.
+
+- Is your firewall switched on? How do you know? Or, how do you know when it is not switched on?
+- Likewise, is your VPN switched on? How do you know?
+- Does TLS provide replay protection [2]?
+- Is wireless access point you are using encrypting [3]?
+
+These questions lead to some deeper principles.
+
+References
+
+[1] This is also known as the End to End Principle as espoused in: "End-to-End Arguments in System Design," Saltzer, J., Reed, D., and Clark, D.D., ACM Transactions on Computer Systems, 1984.
+
+[2] See "Reliable Connections are Not" for the detailed answer.
+
+[3] 39% likely if in the enterprise, 23% at home. See Table 1: "Software Defaults as De Facto Regulation: The Case of Wireless APs," Rajiv Shah and Christian Sandvig, TPRC'07, September 2005.
+
+
+Hypothesis #6 -- It's your job. Do it.
+
+
+Introduction
+
+Contemporary security thinking has it that you must employ consultants or specialists to do this work.
+
+Unfortunately this has not panned out in practice. The dangers are many, the costs are huge and the one baby that does seem to consistently get thrown out with the bath water is security. Remember, they are the experts in security, they can design better than you, they can snow better than you, and they can certainly charge better than you. But you'll be left with the responsibility, either way.
+
+Get comfortable with having to learn yet another discipline. Here are some corollaries to help you on your way.
+
+#6.1 Designing (Security) Without Requirements is like Building a Road Without a Route Map to a Destination You've Never Seen.
+
+Lay down your requirements before you start.
+
+I find it takes longer to lay down the security requirements of the application than to actually design the protocol to meet the needs. And, it takes longer to design than it does to code up the first version. The hard work is in knowing what to build, not in building it.
+
+During later phases, you will find challenges that bounce you back to your original requirements.
+
+Let that happen. Bounce things back and forward for as long as it takes to prove your requirements are really what is needed for the application [1]. Don't be surprised if you get half-way through and discover a real doozy.
+
+The alternative is to pick up someone else's requirements out of a textbook or off a cypherpunks list and assume they make sense. If that happens you'll be into a perpetual battle that will eventually end up in a dog's breakfast when some real canine attacker works out the joke. If you're in that game, use a psuedonym when designing, and change jobs before it gets serious.
+
+#6.2 Most Standardised Security Protocols are Too Heavy
+
+It's OK to design your own protocol. If there is nothing out there that seems to fit, after really thrashing #6.1 for all she is worth, design one that will do the job -- your job.
+
+Consider the big weakness of SSL - its a connection protocol!
+
+The mantra of "you should use SSL" is just plain stupid. For a start, most applications are naturally message-oriented and not connection-oriented. Even ones that are naturally stream-based -- like voip -- are often done as message protocols because they are not stream-based enough to make it worthwhile. Another example is HTTP which is famously a request/response protocol, so it is by definition a messaging protocol layered over a connection protocol. The only real connection-oriented need I can think of is for the secure terminal work done by SSH; that is because the underlying requirement (#6.1) is for a terminal session for Unix ttys that is so solidly connection based that there is no way to avoid it. Yet, even this slavish adoption of connection-oriented terminal work is not so clearcut: If you are old enough to remember, it does not apply to terminals that did not know about character echo but instead sent lines or even entire pages in batch mode.
+
+What this principle means is that you have to get into the soul of your application and decide what it needs (requirements! #6.1 ! again!) before you decide on the tool. Building security systems using a bottom-up toolbox approach is fraught with danger, because the limitations imposed by the popular tools cramp the flexibility needed for security. Later on, you will re-discover those tools as shackles around your limbs; they will slow you down and require lots of fumbling and shuffling and logical gymnastics to camouflage your innocent journey into security.
+
+#6.3 Compromise on Security before Delivery
+
+Security experts will tell you that if you don't build in security at the beginning, then you'll have trouble building it in later. This is true, but it hides a far worse evil: if you spend too much effort on security up front, you'll either lose time and lose the market, or you'll create a security drag on the application side before it has shown its true business model [2].
+
+The security-first argument speaks to security convenience, the business-first argument speaks to survival. Make sure you understand your businesss need for survival, and pray that they understand the inconveniences you put up with to ensure that goal.
+
+#6.4 Design One to Throwaway. You Will Anyway.
+
+Carefully partition your protocol to be replaced. Not some portion of it (see Hypothesis #1 -- the One True Cipher Suite) but the whole sodding thing. If you like, get blatant about it and slot in ROT13 with a checksum made from your cat's ink dippings and a key exchange from putty and pigeon post.
+
+Likely your application will not need real security for the first 1000 users or so (pick you own number here, or read up on GP). Once you've proven the business model, then it's time to secure, and start the tortuous and expensive process of rolling out a new protocol.
+
+Here however note carefully: you are taking on a risk on behalf of the business, and the cryptoguild will massacre you! Make sure that you tell your boss and his boss and her boss too, but do it quietly.
+
+... and we need to replace Dodgy Crypto Protocol #1 when the heat starts
+
+Don't just tell them, write it down, email it to the auditors, tattoo it on their daughters' foreheads in a secret code that only they know.
+
+Meanwhile, design Well Needed Protocol #2 over your private weekends. Tell your spouse you need to save the world, or better yet, make him do it. Just make sure you are ready with a replacement in advanced form.
+
+#6.5 You need to be an adept in many more aspects
+
+In all probability you will need to be adept -- well versed if not expert -- in all aspects, right up to user activity. This will stretch you away from the deep cryptographic and protocol tricks that you are used to as you simply won't have time for all that. But an ability to bridge from user needs all the way across to business needs, and then down to crypto bits is probably much more valuable than knowing yet another crypto algorithm in depth.
+
+The FC7 thesis is that you need to know Rights, Accounting, Governance, Value and Finance as well as Software Engineering and Cryptography [3]. You need to know these things in some depth not to use them but to avoid using them [4]! And, more particularly, avoid their hidden costs, by asking the difficult questions about the costs that nobody else dare recognise.
+
+#6.6 Know When to Breach
+
+Knowing the Hypotheses is a given, that's the job of a protocol engineer. That which separates out engineering from art is knowing when to breach a hypothesis.
+
+References
+
+[1] "The Baby Back Ribbed Theory of Architecture," FC rant, June 2010.
+
+[2] For a poignant example of #6.3, see Xanadu. Compare the timeline with the WWW project, and look at the original 17 rules.
+
+[3] Ian Grigg, FC in 7 Layers, Proceedings of Financial Cryptography 2000, Ed. Ray Hirschfeld.
+
+[4] Nick Szabo, TTP Minimizing Methodology.

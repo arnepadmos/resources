@@ -1,0 +1,109 @@
+Lecture by Dr. W. E. Deming to Japanese Managers in Hakone, 1950
+
+Introduction
+
+The opportunity to speak with all of you is my greatest honor. I will not give a sermon on statistical techniques. I leave that to the statisticians. Henceforth I shall speak of the truly important problems of manufacturing and sales, the statistical techniques which are helpful in the solution of these problems, and how all of you can use these techniques. Afterwards, I will answer your questions.
+
+The problems and methods I will now discuss are extremely important to both Japanese and American manufacturers, as well as those of England, New Zealand and other countries around the world. As all modern-day manufacturers are striving to make their business prosperous in the long term, the following issues are necessary:
+
+1. Better design of products to improve service
+2. Higher level of uniform product quality
+3. Improvement of product testing in the workplace and in research centers
+4. Greater sales through side [global] markets
+
+First of all, I am not a miracle worker. I am not an economist, or an expert in business sales or research. Neither am I a manufacturer. However, I firmly believe that statistical techniques and associated practices are useful to all of you. As a statistician, while being in close contact with the problems that all of you encounter, I have had the honor of doing research about those problems with statisticians, salesmen and other experts from diverse groups. Such groups include manufacturers, economists and technicians, as well as university professors and the world's largest, most successful trade associations.
+
+We all have our different perspectives, but I believe that we can solve the various problems facing modern Japanese manufacturers through cooperation.
+
+Of course, you all have heard about statistical product quality administration before. However, if you do not understand it, or if you do not support your sales researchers, statistical product quality administration is not useful and your business will not be able to expand.
+
+I must point out that I do not mean it would be good if you were simply to sell factory products. These days it is not enough only to sell goods. Next year, if you have that concept you all probably will want to sell a lot, or at least as much as you can. The English word "marketing" does not just mean sales; it is in fact a science, the science of knowing such things as: what the people who buy these products month after month think of them, whether they buy them again, and the reasons why. Afterwards, I will return to this, but now, I would like to continue my discussion of statistical product quality administration.
+
+Statistical Product Quality Administration
+
+Statistical product quality administration is a splendid new tool. It is being applied in every industry, beginning in modern Japan and America as well as England, New Zealand, and various other countries. Whether it be on a large scale or a small scale, it is being researched and executed in an extremely large number of manufacturing plants. Some results of this are:
+
+1. Costs go down
+2. Producers can economize on raw materials
+3. Production levels increase, and waste decreases
+4. Product quality becomes more uniform
+5. Producers and consumers gain the ability to agree on product quality
+6. Quality is improved, so inspections may be reduced
+7. Appliances and techniques can be used to a higher degree
+
+It is already twenty-five years since statistical product quality administration was implemented in America, but it was not developed much until 1942, and the extent of its use was narrow. However, for the following two reasons, in about 1942, we developed statistical product quality administration. In that year, a pamphlet commenting on the principles of statistical product quality administration in simple language, easily understandable by general technicians, was published by the American Standard Association.
+
+Secondly, beginning in 1942 an eight-day course on statistical product quality administration opened in the US, and several hundred technicians were trained. I ran this course in Tokyo for 220 Japanese technicians this July through the sponsorship of the League of Japanese Scientific Techniques; and its content was similar to that of one I ran again in August at Fukuoka's Kyushu University.
+
+In modern Japan many technicians, mathematicians, and statisticians are researching statistical product quality administration. Furthermore, since coming to Japan I have learned that the splendid achievement these people have made in statistical product quality administration is already apparent. The results from all these countries is surprising. They have demonstrated superb ability in the statistical sphere.
+
+The knowledge and brains applied to statistics by the Japanese are an essential national resource; it is important in the same way as water power, forests, and railroads. And that statistical knowledge, much like water power, is not useful at all unless it has an impact on work opportunity and work. With water power, if one were to get rid of turbines and generator machines, no power would emerge.
+
+Similarly it may be recognized that without effective use, all of modern Japanese statistical knowledge would not be helpful to the advance of products, product quality, or product uniformity. You all must look for people who have both statistical knowledge and excellent experience with technical knowledge and employ them in factories. In addition, to aid your technicians you must seek mathematical statisticians as consultants.
+
+However, no matter how excellent your technicians, you who are leaders, must strive for advances in the improvement of product quality and uniformity if your technicians are to be able to make improvements. The first step, therefore, belongs with management. First, your company technicians and your factories must know that you have a fervor for advancing product quality and uniformity and a sense of responsibility for product quality.
+
+Nothing will come of this if you only speak about it. Action is important. If you demonstrate enthusiasm for the improvement of product quality, your product quality administration will certainly advance. Responsibility for product quality means guaranteeing one's own factory's products to the utmost degree possible. The greatest guarantee of product quality is not words, but executing product quality administration. When you effect product quality administration, show administrative charts or methods as an indicator, as there is no better way to guarantee product quality to the consumer.
+
+By showing enthusiasm toward product quality and uniformity and responsibility to product quality . You will gain the opportunity for your technicians to put product quality administration into effect. However, product quality administration at the factory cannot be implemented in a single day. It requires along time. At first do it on a small scale, and once you think that has value, then expand. The process of product quality administration, consisting of the combination of statistical and manufacturing techniques is long and tiring.
+
+Well, I think you must share an interest in how I define statistical product quality administration. Product quality administration is most useful, and moreover it illustrates the methods by which producers can economically produce the goods that buyers indicate they want.
+
+All of the words in this definition have their respective meanings. "Economic production" means low price production: in other words, elimination of waste; faster production; fewer defects in products, raw materials or machines; the practical use of techniques; improved uniformity in product quality; and the opportunity for producers and purchasers to agree on product quality.
+
+"Most useful" means the design and product quality must suit the purpose of the good; raw materials, mechanical manufacturing techniques, transport, and products must be the best as we consider them from the viewpoint of the marketplace. If you do not conduct market surveys about what quality or what design will be in demand, your products will not succeed in being "most useful."
+
+The product must match the market. The product quality must be adapted to that market. If product quality is too high, or too low, it w ill not be right. If product quality is too good, the price is very high, and only a quite limited group of people can afford to purchase it. Even so, if product quality is too low, despite low prices, people will not repeat the purchase, and before long the business will slow down. Therefore, in order to make the most useful product, you must conduct market surveys about what kind or product quality and what kind of design are required. Additionally, through market surveys, you must make sure of the price buyers can pay for the product.
+
+On this subject, there are other reasons why continuing market surveys is useful to economical production. Every month you must make roughly the right amount of product, or you cannot achieve economical production. If you are left with 10%, or 25%, of your goods unsold, your profits will disappear. Further, if you cannot respond to a large number of orders, you will not maximize your profit. As a result, in order to achieve economical production, it is necessary to conduct market surveys. Based on market surveys, you will he able to stand on a stable foundation of monthly product sales. Then you can find out what kind of people (e.g. wage workers, farmers, businessmen) demand that product; or whether, having bought the product once, they will not but it again; or whether the people who bought it are satisfied with the product; or again if they are unsatisfied, why they are not satisfied. Thus by means of market surveys, you can effect administration of advertising, product design changes pricing, and production.
+
+No matter what kind of manufacturer you are, if you have long-term plans, you must work to implement product quality administration in the wider meaning, as in the definition which I laid out a moment ago. In the last ten years there has been no scientific method which has experienced such rapid expansion as has statistical theory. In the context of today's Japan, the most useful thing for manufacturers could be nothing but the appropriate application of statistical techniques.
+
+At the end of my discussion of market surveys, I would like to explain my thoughts on the problem of statistical product quality administration with a diagram. This diagram not only makes clear my thoughts on product quality administration and market surveys, but I think it is extremely easy to understand. Below I have drawn a pie graph "wheel" divided into four sections:
+
+1. Design
+2. Manufacture
+3. Sale
+4. Investigative survey
+
+This wheel rolls along the line of "concepts regarding product quality" and "sense of responsibility for product quality." The fact that the four stages of the wheel are connected one to the other with no beginning and no end is very important. This is the reason why I drew a circle. You must not stop product design or testing. When your products emerge into the real market, after having inquired into how the product is useful to people, and what they think of it, you redesign it. There is no end to product quality administration.
+
+Using product quality administration, producing goods continually being improved, I want you to make more and more adapted items that buyers will want, designing, redesigning, and then finding cheap, better ways to make them. While this certainly benefits the purchasers, it benefits you as well. Finally, I would like you to understand that the latest stage of statistical product quality administration for factories lies in pertinent market surveys Now I will add to this two or three explanations of market research.
+
+Special Advice Concerning Market Surveys
+
+This year is 1950. The current markets and manufacturing techniques are considerably different from those of 1935. In Japan the recent changes may possibly be greater than those in any other country. However, businessmen from everywhere are facing the necessity for new methods. In the past, in 1935 and before, businessmen simply made things they wanted to sell, and sold those things they had made. They tried to sell these products both in domestic and international markets. There were those who succeeded, and those who failed. There was no way to determine how much their enterprise would improve if they made products of a different design, better adapted to the buyers' needs, with better methods. The stages of manufacture and sales of that time were as follows:
+
+1. Product design (shoes, cotton materials, silk materials, magnetic products, electrical appliances)
+2. Manufacture
+3. Sales
+
+Today, in 1950, we all must design, manufacture, and sell in the same way, nut science has expanded. Rather than following the example of these three steps, four stages, including market surveys which I have just highlighted have become necessary.
+
+These days we cannot compel people to buy. When, selling a product, whether it be on domestic or international markets, we must deliver the things people truly want. Moreover, we must manufacture at a price that invites purchase, furthermore, when markets are far away, at a price which is competitive. As I mentioned before, if the product quality is either too high or too low, it is no good.
+
+In the past two or three years, market surveys have come to be extremely successful in America. However, I cannot say their evolution is complete. Market research by modern manufacturers themselves, or through market research specialist companies, is progressing swiftly. I think if it were not for that progress, many of those businesses would not be prosperous now.
+
+I firmly believe that if product quality administration and market surveys, prudently and scientifically, were used in a correct manner you would be able to create a market for Japanese goods overseas, and the Japanese standard of living would greatly rise.
+
+Market surveys give answers to the following kinds of questions: "What kind of goods would it be profitable to produce that people would demand and be able to buy?" I would probably say this about that subject: the techniques of statistical product quality administration count the methods of making cheap and uniform high-quality products for you. The manufacturing and market surveys that comprise the four stages of product quality administration consider not only the manufacturers, but also the consumers.
+
+The process of sales is not something that finishes simply with transporting the products to the marketplace, and receiving money. In today's sales, after selling the product, the businessman must think about whether he has satisfied the customer, and how improvements can be made from then on. Market surveys accomplish better service for the consumer, and moreover they serve the purpose of increasing profit for management and workers.
+
+As I have said before, I am visiting here as a statistician, but I strongly believe that, as in the four parts of that wheel diagram, we must not fail to use statistical techniques in today's industrial world. If it is the case that businessmen try to perform a great service to the public, I emphasize that they should find and put excellent statistical techniques into each of those four categories.
+
+To conclude, I want to offer you one or two things I have realized about the statistical techniques that are currently being used.
+
+Number one: at the first stage, design, you must conduct market surveys and inspections, applying the statistical techniques for experimental and planning methods and inspection of samples. Furthermore, you must perfect the manufacturing process, using the technical skills of factory workers and machines, and utilizing these techniques to conduct inspections of raw materials.
+
+Number two: in manufacturing in the second stage good product quality and uniformity of product quality are important. This means that by the time of shipping, you can transport quality products through the use of statistical techniques of inspection of samples, experimental planning methods and marketing surveys.
+
+Number three: at the third stage, sales, the statistical technique of the market survey is used.
+
+Number four: at the fourth stage of service research the techniques of sample inspections, experimental planning methods, and market surveys are used.
+
+After you have reached the fourth stage, you return once again to the beginning stage in wheel. Here, then, putting together thoughts from your previous results, you may begin to implement product design changes. I repeat myself, but the necessity of statistical techniques must not be ignored. Without them I deeply believe that businessmen cannot long sustain their prosperity. What I just spoke about now is true not only in Japan, but equally in Chicago, Manchester, or Amsterdam. Every businessman around the world is now facing these same problems.
+
+By the way, I believe you all probably have many questions to ask. You probably want to know more about market survey techniques, or about how they are managed. Anticipating one of your questions, why don't I give an answer now. What they are doing to carry out market surveys in America may be answered as follows: it is fine to request the services of a trustworthy market research company on your own.
+
+On this topic, I would like to ask for your care on one more issue. Even if you hear developments from professional buyers in New York, they are not necessarily all correct. Therefore, because you do not know what American shop for in a basic product, and you only respond to orders, you may be driven out of the market. This is due to lack of knowledge about what kind of design or product quality Americans are demanding, or what markets may prosper in the future. You, Japan's skillful technicians, can manufacturer items that businessmen of American and the rest of the world cannot. You don't know whether the things you want to sell are what Americans want to buy, but you know the way to find this out. That method is statistical research in the realms of manufacture and market surveying.

@@ -1,0 +1,184 @@
+Usability inspection method for asynchronous, geo-diverse, open-source software teams
+
+Status: Draft - June 2015 v. 1.0
+Search for possible newer versions on Github starting in 2016
+
+Please suggest any modifications that were helpful for you when you try this method. I will be glad to credit all contributors whose modifications become part of the process.
+
+Susan Farrell: <susanf@hevanet.com>
+License: Creative Commons: Attribution-Noncommercial-Share Alike
+
+===============================================
+
+Background: 
+
+Usability inspections such as heuristic evaluations, expert reviews, and cognitive walkthroughs are all meant to help eliminate problems before the interface is tested by target users. There is no point in running a usability test when you know some parts of the design are not going to work well.
+
+Jakob Nielsen and Rolf Molich developed a list of heuristics (basic principles or guidelines) that over the decades others have used in "heuristic evaluations." Although these heuristics are extremely helpful to keep in mind while doing usability activities, they are too general for most reviewers to apply easily to the many kinds of usability problems found in a typical user interface. Practically, they don't make a good reporting or inspection structure, either. 
+
+http://www.userfocus.co.uk/articles/expertreviews.html
+A discussion of the issues and the list of heuristics
+
+Below is a proposed hybrid method that combines standard methods for usability evaluators and takes advantage of the characteristics of many open-source teams (more people, less face time, collaborative tools, maximum efficiency). 
+
+Briefly, this proposed method consists of:
+
+. a task-based approach to finding usability problems
+. a decision tree for severity ratings (by David Travis, incorporated via URL)
+. a merge, sort, and vote process to come to consensus quickly
+. a pattern for effective reporting
+. tips for getting the best results
+
+===============
+Usability Walkthrough: 
+
+1. Identify the top tasks and known problems in the system. Generally the product team can just tell you what these are. If they are too busy, go datamine the FAQs, support issues, bug lists, discussion forums, third-party help documentation, etc.
+
+2. Do each of the tasks, and try using the parts of the system with known problems. Start with finding the application, then installing and configuring it, because if users can't do those tasks, they also can't do the feature-list tasks.
+
+a. As you attempt the tasks, capture confusions, mistakes, and departures from the expected in notes and screenshots. 
+	
+- Examine the interaction design to look for both good innovations and unneeded deviations from what's known to work well.
+
+- Think about the heuristics, but also consider the systems most people use and like that have similar interaction patterns. Often one popular system will solve a problem well, and similar other systems can benefit by adopting that design pattern. This kind of "work alike" design convention helps people know how to use a system without having to learn it, because the interaction is familiar. This is not a reason for no innovation, but it is a good reason not to reinvent the wheel.
+
+- Be sure to note all the good things!
+
+- Take screenshots as you go, and label them in a way that you can easily re-find them in a file list. Consider using a tool that combines your notes and screenshots as you go.
+
+- Guard against blaming yourself for confusion as you learn more. If you were confused, other people will also be confused. Just note it.
+
+- You will evaluate your observations later and think of solutions later. At first, just note issues and ideas and move along, following the likeliest task paths.
+	
+b. Each reviewer: Edit your notes. Make them into a list of succinct problem statements. Mark the top 10 or 15 problems from a user's point of view.
+
+c. Together: Combine everyone's findings (by task, feature, and/or application screen as best you can) into a big list. Detailed restatements can be done later. At this stage, group similar problem statements so they can be considered and rated. Number each issue for ease of referring to duplicates as they are found.
+
+d. Each reviewer: Take a copy of the big list and rate each numbered item by severity, using the decision chart at the link below.
+
+The recommended way for a group to rate findings for severity is for each reviewer to rate each of the findings in the entire list separately, rather than as a group (true also for brainstorming, BTW). Then compare. Where there's a disagreement, average the scores or discuss the problem and decide together. Discussing differences can help you be more consistent in the future.
+
+How to prioritize usability problems: http://www.userfocus.co.uk/articles/prioritise.html
+
+This is a relatively objective way to classify issues by severity level, which should help a team rate the same findings in the same way. Don't assume everyone will end up with the same ratings until after you try it separately, though, because surprising variation can occur when using ratings systems. "Persistent" may need some further thought, in this case. He uses it to mean "pervasive" as well as "frequently encountered".
+
+============
+Tip: How to arrive at the top findings quickly, by voting
+
+Merge everyone's list of the top 10 or 15 problems from step b. Mark that combined list to show the things that more than one evaluator named (this fact may help when you convey the results to developers). Keep in mind, however, that it's normal and expected for each reviewer to find important things others didn't, so your merged list (of the top 10 or 15 problems) could turn out to be 30-45 problems long if you have 3 reviewers.
+
+Prioritize the list further by voting. Give each person a number of votes equal to half the number of votable items. Each person gets to vote on anything on the list, including voting more than once for the same thing. If you're in the same room, this is easy to do with a whiteboard and tape flags. Alternatively, use a spreadsheet with a vertical list of issues and a voting column for each person. It's okay to do this separately and then combine the results. Many teams do this on a whiteboard with everyone voting at the same time with sticky dots (aka "dot voting").
+
+Sort the list by number of votes. Group items as needed. The process will naturally create changes in the lists as issues are combined and as people change their minds about some of the issues' relative severity.
+
+Consider which issues require testing to illuminate further. Mark or list those. 
+
+This is more or less the final steps of a K-J Method. K-J analysis was designed to arrive at consensus for priorities quickly, and it has stood the test of time, even though it feels less than mathematical while you're doing it. It's also an efficient way for a group to process and organize qualitative data.
+
+http://en.wikipedia.org/wiki/Affinity_diagram (KJ Method)
+http://www.uie.com/articles/kj_technique/ (UIE KJ Method)
+
+Decide what to do with all the findings that are not in your top-findings lists (remember to ask the dev/design teams if they would like to have this list before you go to the trouble of cleaning it up). These findings are important and valuable, but only if they will be read and acted on. Most people opt to receive them, in my experience, but just because they did ask for them, they won't be as likely to get upset when you hand them 300 more items.
+
+Look through the findings list and decide which ones go with or embellish items that are on the top findings list you made earlier. Add them. 
+
+Consider ordering the remaining list by severity, type of problem, or what kind of skills/roles it takes to fix it (design, dev, executive decision, policy change, search engine tuning, tech writer, etc.) Often issues cross into a lot of areas, so don't get stuck on this step for hard-to-classify issues.
+
+Work toward clarity, simplification, grouping. 
+
+Consider marking all the things you think would be quick and easy fixes.
+
+Consider making some changes yourself or prototyping some proposed fixes, to be helpful to the team, especially if they don't have any designers yet.
+
+=====
+Tip: How to write a finding
+
+Describe the problem as simply and factually as you can. Add a brief rationale for why it's a problem, and if you think you know how to fix it, maybe offer a suggestion (or a few options) for fixing it. 
+
+Put screenshots in the report, and mark them up with circles and arrows or numbers, if you need to do that to make your points easy to understand.
+
+Refrain from making suggestions when you just don't know enough, because half-baked suggestions can impede a fix. In those cases, focus on describing the problem and why it's important enough to fix. 
+
+Be as factual and neutral as you can be. Read this article by Rolf Molich on writing usable problem statements and how to avoid alienating your reader: http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.127.9422&rep=rep1&type=pdf
+
+Look at related problems and try to construct solution alternatives that address all of them. For example if it's difficult to find the right button to press but the difficulty stems from several different things, note the various failure or confusion cases, and propose a new button that won't have any of those problems.
+
+-----
+Example of findings
+
+[screenshot]
+
+1. Good: Text-size controls are provided in the settings.
+
+> Continue to allow users to control the font size and zoom, so people with low vision can read the text at a much larger size and so people who want more text on the screen also have that choice. 
+
+> Consider providing text-size controls on the first screen instead of only in the settings.
+
+2. Serious: The default font size is too small for good ease of use and accessibility. 
+
+. The default font size is 8 points, which is too small for most people to read comfortably. 
+
+. Previous research shows that most users don't change their preferences, so providing a usable default is the best thing to do. 
+
+. Font size and controls are crucial for accessibility.
+
+> For light words on dark backgrounds, add 2 points to the default font size and make the font bold, in order to achieve the same level of readability as the dark-on-light text. 
+
+> Increase the default font size to 12 points (the recommended minimum font size for dark body text on light backgrounds on handheld devices) to provide good readability for most people. 
+
+
+========
+
+Tips: How to report
+
+Goal: Give the team the right stuff first: bugs, top findings (good and needs work), critical and severe issues; then: optional quick fixes and low-level problems, recommended next steps, method explanation. 
+
+Send the bug list to the dev team ASAP, but discuss any fixes you're going to recommend that would render any bug obsolete so they won't do extra work. (E.g.: Search is broken and they need a new one, so never mind the three search bugs if they are going to replace the engine.) Consider doing bug triage and filing the bugs yourselves, if you have the skills on your team and access to do so.
+		
+Ask the team if they want the medium and low findings, which include some easy fixes for annoying things and apparent quality issues, etc. If they do want everything, combine, merge and purge the list of all findings. 
+
+If the team doesn't want very many issues at a time, then list all the critical and serious problems found. Group them in any way that makes sense (for example by feature, task, or screen). Consider volunteering to work on some of the easy fixes from the rest of the list.
+
+Make an executive summary (succinct list) of your top good findings and top opportunities for improvement. Emphasize that the top good things should be retained, and that the top usability issues found should be dealt with first, because they will make the biggest difference in the product's usability. 
+
+Often you can write these top items at a higher level than the findings you have in your big list already, now that you've made those handy groupings. For example one of the top 10 might be: "The search tool does not provide useful results and it often causes errors. Discussion of search issues found begins on page 5." 
+
+A grouping or ordering scheme should suggest itself from the list of findings. Often, making a table of contents or outline can help a lot with this process. 
+
+It's best to discuss reporting format with the team ahead of time so you can ensure that what you give them can easily be used in the ways they need to use it in the redesign (divide and conquer, copy/paste, export to ASCII, database entry order, whatever supports the dev tools, by feature, by function, by task, etc.). 
+
+Report-content templates are not very helpful, but document-format templates may be, to the extent that they keep you from spending too long in the document design phase. 
+
+Possible content formats depend on medium chosen. Slides are quite common (one issue or one screen's issues per slide, but no automatic numbering or easy exporting), as are word-processing documents, or HTML.  
+
+PDF content is not very usable for repurposing, but it can be great for an additional record of your activity. If you deliver in PDF do not use columns. Do use text-based (not image-based) PDF pages so they can be searched and annotated.
+
+Whatever formats you choose, make your reports as usable as possible by using accurate, concise, and succinct language and by showing containment well with strong visual (font size/color-coding) or notational hierarchy (naming/numbering) for section headings. Faster is always better than prettier, but if it's not easy to read, you'll lose your most important audience.
+
+Call out the things that need more research, at the end of the report or the end of the executive summary. In cases where what to do is not as clear, suggest some issues for subsequent usability testing in order to find out more. Also suggest that redesigned elements be tested in a task-based usability test to make sure the solutions work well. Emphasize that iteration is the key to good design. Design, test, design, test, repeat. Too many teams wait too long to start usability activities because they don't understand that.
+
+Discuss the method and the reviewers, at the level of detail needed, at the end.
+
+=====
+
+Tip: How to help yourself arrive at the "ahah!" solutions
+
+Let your subconscious work for a few days on what you've discovered. Think about the whole system and whole task flow, and suggest to yourself that you'll have some good ideas about it soon. Then do something unrelated. Sleep on it.
+
+Reflect on the big problems you saw and consider various ways they could be prevented or designed around. Think about the issues in terms of transcending the problem space with a redesign somewhere upstream of it. Often, related small problems are just symptoms of a larger problem. 
+
+When people get into trouble designing a UI screen, they sometimes add layers of workarounds to try to fix what was actually a poor design decision to begin with. Try to understand the original problems the UI was attempting to solve, so you can streamline the task process into something more elegant.
+	
+---Typical example of runaway workarounds: 
+	
+You design a graphically flat button with a word label on it. People complain that you didn't provide the feature that the button represents. Put a dark background on the button. Problem continues, and in usability testing nobody even mentions the button even though they say they are looking for the feature, indicating they didn't notice it or didn't recognize it as being the wanted item. Put an arrow glyph > on the button like everyone is doing these days. Problem continues. Try a different label and another arrow. Nothing helps. Add an icon. Put an instruction next to the button telling people to press the button and why. 
+
+A new designer sees the mess on the screen and wants to clean it up. The instructions are pretty bad. They consider rewriting the two sentences and making them visually neater, perhaps in a different font. Maybe the words and button should go in a neat box or a rollover/hover thingy. 
+
+Unfortunately the problem continues, because each fix to the button so far made things worse for various reasons. It's easy to become distracted by bad instructions, but instructions on how to operate a UI often are a workaround put in place to address a design problem, so instructions should be eyed suspiciously as potential clues.
+
+The usual fix in this situation is to make the button look like a pushable button and to ensure that the label is unambiguous, readable, and easily noticed. Use dark type on a light background, with good contrast between them. Possibly the button also needs to be relocated, so that it is the next natural thing to notice in the flow of the layout when it's time to press it. Often disambiguation takes two words instead of one, and now the button is a bit bigger too, making it easier to notice and to click. Finally, all the other useless and noisy workarounds can go away: the box, the instructions, and the arrow. Now a nicer grid can work to lay out the screen, making it seem much more solid and reliable. Put the button in the logical place where the users' attention will be when they need to press it.
+
+
+=====eof
+
